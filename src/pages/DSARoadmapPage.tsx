@@ -49,6 +49,13 @@ export default function DSARoadmapPage() {
 
   // Scrollspy
   const handleScroll = useCallback(() => {
+    // If near bottom of page, activate the last topic
+    const atBottom = (window.innerHeight + window.scrollY) >= (document.body.scrollHeight - 100);
+    if (atBottom) {
+      setActiveTopicId(DSA_ROADMAP[DSA_ROADMAP.length - 1]?.id || "");
+      return;
+    }
+
     const scrollY = window.scrollY + 220;
     let currentId = DSA_ROADMAP[0]?.id || "";
     for (const topic of DSA_ROADMAP) {
