@@ -1,15 +1,17 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { PYTHON_TOPICS } from "@/data/pythonTopics";
 import Navbar from "@/components/Navbar";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
-import { Play, CheckCircle2, Circle, ArrowLeft, Lightbulb, BookOpen } from "lucide-react";
+import { Play, CheckCircle2, Circle, ArrowLeft, Lightbulb, BookOpen, Trophy, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import confetti from "canvas-confetti";
 import type { PythonQuestion } from "@/data/pythonTopics";
 
 export default function PythonTopicPage() {
