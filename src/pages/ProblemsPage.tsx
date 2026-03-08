@@ -199,7 +199,7 @@ export default function ProblemsPage() {
                   <span className="text-sm text-muted-foreground hidden sm:block">{p.acceptance}%</span>
                   <span className="text-sm text-primary font-medium">+{p.xpReward}</span>
                 </Link>
-              </motion.div>
+              </div>
             ))
           )}
         </div>
