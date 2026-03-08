@@ -88,4 +88,15 @@ export const LEARNING_TRACKS: LearningTrack[] = [
     route: "/learn/learn-java",
     difficulty: "Beginner → Intermediate",
   },
+  {
+    id: "learn-cpp",
+    title: "Learn C++ Programming",
+    description: "STL · OOP · Templates · Modern C++ features",
+    icon: "🔷",
+    color: "from-blue-400/10 to-blue-500/5",
+    totalProblems: 45,
+    topics: ["STL", "OOP", "Templates", "Pointers", "Memory"],
+    route: "/learn/learn-cpp",
+    difficulty: "Beginner → Advanced",
+  },
 ];
