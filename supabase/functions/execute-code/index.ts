@@ -20,8 +20,14 @@ Deno.serve(async (req) => {
 
     const { code, language, problemDescription, sampleCases, mode, constraints } = await req.json();
 
-    if (!code || !language) {
-      return new Response(JSON.stringify({ error: 'Code and language are required' }), {
+    if (!language) {
+      return new Response(JSON.stringify({ error: 'Language is required' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (!code && mode !== 'solution') {
+      return new Response(JSON.stringify({ error: 'Code is required' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
