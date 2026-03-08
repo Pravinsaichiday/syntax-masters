@@ -278,8 +278,8 @@ export default function ProblemPage() {
 
             {/* Input Format */}
             <div className="mt-6 rounded-lg border border-border bg-surface-2 p-4">
-              <h3 className="text-sm font-semibold text-foreground mb-2">📥 Input Format</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{problem.inputFormat}</p>
+              <h3 className="text-sm font-bold text-foreground mb-2">📥 Input Format</h3>
+              <p className="text-[13px] text-muted-foreground leading-relaxed">{problem.inputFormat}</p>
             </div>
 
             {/* Output Format */}
