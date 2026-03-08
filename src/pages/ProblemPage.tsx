@@ -399,7 +399,7 @@ export default function ProblemPage() {
               <Button size="sm" variant="outline" onClick={() => callExecuteCode("run")} disabled={running}>
                 <Play className="mr-1 h-3.5 w-3.5" />Run
               </Button>
-              <Button size="sm" onClick={() => callExecuteCode("submit")} disabled={running || (!approachUnlocked && !!user && !alreadySolved)} className="bg-gradient-gold font-semibold">
+              <Button size="sm" onClick={() => callExecuteCode("submit")} disabled={running} className="bg-gradient-gold font-semibold">
                 <Send className="mr-1 h-3.5 w-3.5" />Submit
               </Button>
             </div>
