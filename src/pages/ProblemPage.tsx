@@ -419,15 +419,15 @@ export default function ProblemPage() {
           {/* Output / Custom Test Cases tabs */}
           <div className="border-t border-border">
             <div className="flex items-center gap-4 px-4 py-2 border-b border-border">
-              <button
+               <button
                 onClick={() => setActiveTab("output")}
-                className={`text-sm font-medium transition-colors ${activeTab === "output" ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                className={`text-sm font-bold transition-colors ${activeTab === "output" ? "text-foreground border-b-2 border-primary pb-1" : "text-muted-foreground hover:text-foreground pb-1"}`}
               >
                 Output
               </button>
               <button
                 onClick={() => setActiveTab("custom")}
-                className={`text-sm font-medium flex items-center gap-1 transition-colors ${activeTab === "custom" ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                className={`text-sm font-bold flex items-center gap-1 transition-colors ${activeTab === "custom" ? "text-foreground border-b-2 border-primary pb-1" : "text-muted-foreground hover:text-foreground pb-1"}`}
               >
                 <TestTube className="h-3.5 w-3.5" /> Custom Test
               </button>
