@@ -41,9 +41,8 @@ export default function ProblemsPage() {
   const pythonLocked = settings?.find((s: any) => s.key === "python_locked")?.value === "true";
 
   const toggleSort = (key: "difficulty" | "acceptance" | "xp") => {
-    if (sortBy === `${key}-asc`) setSortBy(`${key}-desc`);
-    else if (sortBy === `${key}-desc`) setSortBy("none");
-    else setSortBy(`${key}-asc`);
+    if (sortBy === `${key}-asc`) setSortBy(`${key}-desc` as SortKey);
+    else setSortBy(`${key}-asc` as SortKey);
   };
 
   const filtered = useMemo(() => {
@@ -55,14 +54,23 @@ export default function ProblemsPage() {
     });
 
     if (sortBy.startsWith("difficulty")) {
-      const dir = sortBy.endsWith("asc") ? 1 : -1;
-      result = [...result].sort((a, b) => dir * ((DIFF_ORDER[a.difficulty] || 0) - (DIFF_ORDER[b.difficulty] || 0)));
+      const asc = sortBy.endsWith("asc");
+      result = [...result].sort((a, b) => {
+        const diff = (DIFF_ORDER[a.difficulty] ?? 0) - (DIFF_ORDER[b.difficulty] ?? 0);
+        return asc ? diff : -diff;
+      });
     } else if (sortBy.startsWith("acceptance")) {
-      const dir = sortBy.endsWith("asc") ? 1 : -1;
-      result = [...result].sort((a, b) => dir * ((a.acceptance || 0) - (b.acceptance || 0)));
+      const asc = sortBy.endsWith("asc");
+      result = [...result].sort((a, b) => {
+        const diff = (a.acceptance ?? 0) - (b.acceptance ?? 0);
+        return asc ? diff : -diff;
+      });
     } else if (sortBy.startsWith("xp")) {
-      const dir = sortBy.endsWith("asc") ? 1 : -1;
-      result = [...result].sort((a, b) => dir * (a.xpReward - b.xpReward));
+      const asc = sortBy.endsWith("asc");
+      result = [...result].sort((a, b) => {
+        const diff = a.xpReward - b.xpReward;
+        return asc ? diff : -diff;
+      });
     }
 
     return result;
@@ -73,6 +81,8 @@ export default function ProblemsPage() {
     if (sortBy === `${key}-desc`) return "↓";
     return "";
   };
+
+  const isSortActive = (key: string) => sortBy.startsWith(key);
 
   return (
     <div className="min-h-screen bg-background">
