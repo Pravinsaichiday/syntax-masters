@@ -437,7 +437,7 @@ export default function ProblemPage() {
             </div>
 
             {activeTab === "output" ? (
-              <pre className="h-32 overflow-y-auto p-4 font-mono text-xs text-muted-foreground">
+              <pre className="h-36 overflow-y-auto p-4 font-mono text-sm text-muted-foreground leading-relaxed">
                 {running ? "Processing..." : output || "Run or submit your code to see output here."}
               </pre>
             ) : (
