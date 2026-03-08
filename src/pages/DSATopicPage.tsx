@@ -331,8 +331,41 @@ export default function DSATopicPage() {
                 <pre className="text-xs font-mono text-foreground/80">Input: {ex.input}{"\n"}Output: {ex.output}</pre>
                 {ex.explanation && <p className="text-xs text-muted-foreground mt-1">{ex.explanation}</p>}
               </div>
-            ))}
+          ))}
 
+          {/* Additional problems from main database */}
+          {extraProblems.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold mb-1">More {topic.title} Problems</h2>
+              <p className="text-sm text-muted-foreground mb-3">{extraProblems.length} additional practice problems from the problem set</p>
+              <div className="space-y-2">
+                {extraProblems.map((p, i) => (
+                  <Link
+                    key={p.id}
+                    to={`/problem/${p.id}`}
+                    className="w-full rounded-lg border border-border bg-card p-4 text-left transition-all hover:border-primary/30 flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Circle className="h-5 w-5 text-muted-foreground shrink-0" />
+                      <div>
+                        <span className="font-medium text-sm">{p.title}</span>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${
+                            p.difficulty === "Very Easy" || p.difficulty === "Easy" ? "bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))]" :
+                            p.difficulty === "Basic" || p.difficulty === "Intermediate" ? "bg-primary/10 text-primary" :
+                            "bg-destructive/10 text-destructive"
+                          }`}>{p.difficulty}</span>
+                          <span className="text-xs text-primary">+{p.xpReward} XP</span>
+                          <span className="text-xs text-muted-foreground">{p.acceptance}%</span>
+                        </div>
+                      </div>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
             {/* Constraints */}
             <div className="mt-3">
               <p className="text-xs font-semibold text-muted-foreground mb-1">Constraints:</p>
