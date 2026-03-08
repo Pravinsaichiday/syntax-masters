@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { code, language, problemDescription, sampleCases, mode } = await req.json();
+    const { code, language, problemDescription, sampleCases, mode, constraints } = await req.json();
 
     if (!code || !language) {
       return new Response(JSON.stringify({ error: 'Code and language are required' }), {
