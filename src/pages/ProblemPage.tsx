@@ -79,7 +79,7 @@ export default function ProblemPage() {
   const [activeTab, setActiveTab] = useState<"output" | "custom">("output");
   const [customInput, setCustomInput] = useState("");
   const [customOutput, setCustomOutput] = useState("");
-  const [approachUnlocked, setApproachUnlocked] = useState(false);
+  
 
   // Timer for time-taken tracking
   const startTimeRef = useRef<number>(Date.now());
