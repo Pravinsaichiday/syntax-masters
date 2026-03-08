@@ -405,7 +405,7 @@ export default function ProblemPage() {
             </div>
           </div>
 
-          <div className={`flex-1 min-h-[300px] ${(!approachUnlocked && !!user && !alreadySolved) ? "opacity-40 pointer-events-none" : ""}`}>
+          <div className="flex-1 min-h-[300px]">
             <Editor
               height="100%"
               language={LANG_MONACO[language] || "plaintext"}
