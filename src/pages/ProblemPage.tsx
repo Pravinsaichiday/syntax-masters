@@ -396,7 +396,7 @@ export default function ProblemPage() {
               </button>
             </div>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => callExecuteCode("run")} disabled={running || (!approachUnlocked && !!user && !alreadySolved)}>
+              <Button size="sm" variant="outline" onClick={() => callExecuteCode("run")} disabled={running}>
                 <Play className="mr-1 h-3.5 w-3.5" />Run
               </Button>
               <Button size="sm" onClick={() => callExecuteCode("submit")} disabled={running || (!approachUnlocked && !!user && !alreadySolved)} className="bg-gradient-gold font-semibold">
