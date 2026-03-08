@@ -14,7 +14,7 @@ export default function Navbar() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2">
           <Code2 className="h-7 w-7 text-primary" />
-          <span className="text-xl font-bold tracking-tight">Code<span className="text-gradient-gold">Forge</span></span>
+          <span className="text-xl font-bold tracking-tight"><span className="text-xl font-bold tracking-tight">Syntax<span className="text-gradient-gold">Masters</span></span></span>
         </Link>
 
         <div className="hidden items-center gap-6 md:flex">

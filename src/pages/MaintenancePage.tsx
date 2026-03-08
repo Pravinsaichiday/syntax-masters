@@ -35,7 +35,7 @@ export default function MaintenancePage() {
 
         <div className="flex items-center justify-center gap-2 text-muted-foreground">
           <Code2 className="h-5 w-5 text-primary" />
-          <span className="font-semibold text-foreground">CodeForge</span>
+          <span className="font-semibold text-foreground">SyntaxMasters</span>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">We'll be back soon. Thank you for your patience.</p>
       </motion.div>

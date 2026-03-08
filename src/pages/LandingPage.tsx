@@ -52,7 +52,7 @@ export default function LandingPage() {
             <h1 className="mb-6 text-4xl font-bold leading-tight tracking-tight md:text-6xl lg:text-7xl">
               Master Algorithms.
               <br />
-              <span className="text-gradient-gold">Forge Your Code.</span>
+              <span className="text-gradient-gold">Master Your Syntax.</span>
             </h1>
             <p className="mx-auto mb-10 max-w-xl text-lg text-muted-foreground">
               The most advanced competitive programming platform with AI mentoring, real-time contests, and personalized learning paths.
