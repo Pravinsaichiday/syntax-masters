@@ -41,7 +41,7 @@ export const LEARNING_TRACKS: LearningTrack[] = [
     color: "from-purple-500/10 to-purple-600/5",
     totalProblems: 80,
     topics: ["Sorting", "Searching", "Greedy", "Backtracking", "DP"],
-    route: "/problems?topic=Sorting",
+    route: "/learn/algorithm-mastery",
     difficulty: "Basic → Advanced",
   },
   {
@@ -52,7 +52,7 @@ export const LEARNING_TRACKS: LearningTrack[] = [
     color: "from-red-500/10 to-red-600/5",
     totalProblems: 120,
     topics: ["Segment Tree", "Trie", "Graphs", "Bit Manipulation", "Math"],
-    route: "/problems?difficulty=Advanced",
+    route: "/learn/competitive-prep",
     difficulty: "Intermediate → Advanced",
   },
   {
@@ -63,7 +63,7 @@ export const LEARNING_TRACKS: LearningTrack[] = [
     color: "from-green-500/10 to-green-600/5",
     totalProblems: 100,
     topics: ["Arrays", "Strings", "Trees", "DP", "Graphs"],
-    route: "/problems?difficulty=Intermediate",
+    route: "/learn/interview-prep",
     difficulty: "Easy → Intermediate",
   },
   {
@@ -74,7 +74,7 @@ export const LEARNING_TRACKS: LearningTrack[] = [
     color: "from-gray-500/10 to-gray-600/5",
     totalProblems: 40,
     topics: ["Variables", "Pointers", "Arrays", "Structs", "Memory"],
-    route: "/problems?difficulty=Very+Easy",
+    route: "/learn/learn-c",
     difficulty: "Beginner → Intermediate",
   },
   {
@@ -85,7 +85,18 @@ export const LEARNING_TRACKS: LearningTrack[] = [
     color: "from-orange-500/10 to-orange-600/5",
     totalProblems: 50,
     topics: ["OOP", "Collections", "Generics", "Streams", "Concurrency"],
-    route: "/problems?difficulty=Easy",
+    route: "/learn/learn-java",
     difficulty: "Beginner → Intermediate",
+  },
+  {
+    id: "learn-cpp",
+    title: "Learn C++ Programming",
+    description: "STL · OOP · Templates · Modern C++ features",
+    icon: "🔷",
+    color: "from-blue-400/10 to-blue-500/5",
+    totalProblems: 45,
+    topics: ["STL", "OOP", "Templates", "Pointers", "Memory"],
+    route: "/learn/learn-cpp",
+    difficulty: "Beginner → Advanced",
   },
 ];
