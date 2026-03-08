@@ -103,8 +103,8 @@ export default function DashboardPage() {
           <Link to="/problems" className="flex items-center gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/30">
             <BookOpen className="h-6 w-6 text-primary" /><div><div className="font-semibold">Practice</div><div className="text-sm text-muted-foreground">Solve problems by topic</div></div>
           </Link>
-          <Link to="/contests" className="flex items-center gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/30">
-            <Trophy className="h-6 w-6 text-primary" /><div><div className="font-semibold">Contests</div><div className="text-sm text-muted-foreground">Compete live</div></div>
+          <Link to="/dsa" className="flex items-center gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/30">
+            <Map className="h-6 w-6 text-primary" /><div><div className="font-semibold">DSA Roadmap</div><div className="text-sm text-muted-foreground">Master DSA step by step</div></div>
           </Link>
           <Link to="/leaderboard" className="flex items-center gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/30">
             <TrendingUp className="h-6 w-6 text-primary" /><div><div className="font-semibold">Leaderboard</div><div className="text-sm text-muted-foreground">See global rankings</div></div>
