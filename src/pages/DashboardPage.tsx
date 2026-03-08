@@ -1,10 +1,9 @@
 import { useAuth } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import Recommendations from "@/components/Recommendations";
-import BadgesDisplay from "@/components/BadgesDisplay";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Flame, Target, TrendingUp, Zap, BookOpen, ArrowRight, Map } from "lucide-react";
+import { Flame, Target, TrendingUp, Zap, BookOpen, ArrowRight, Map, StickyNote } from "lucide-react";
 import { ALL_PROBLEMS } from "@/data/problemsDatabase";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -28,7 +27,6 @@ export default function DashboardPage() {
     enabled: !!user,
   });
 
-  // Fetch solved problem IDs for recommendations
   const { data: solvedIds } = useQuery({
     queryKey: ["solved-ids", user?.id],
     queryFn: async () => {
@@ -95,9 +93,6 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Badges */}
-        <BadgesDisplay />
-
         {/* Recommendations */}
         {solvedIds && <Recommendations solvedIds={solvedIds} />}
 
@@ -124,12 +119,15 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-4">
           <Link to="/problems" className="flex items-center gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/30">
             <BookOpen className="h-6 w-6 text-primary" /><div><div className="font-semibold">Practice</div><div className="text-sm text-muted-foreground">Solve problems by topic</div></div>
           </Link>
           <Link to="/dsa" className="flex items-center gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/30">
             <Map className="h-6 w-6 text-primary" /><div><div className="font-semibold">DSA Roadmap</div><div className="text-sm text-muted-foreground">Master DSA step by step</div></div>
+          </Link>
+          <Link to="/notebook" className="flex items-center gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/30">
+            <StickyNote className="h-6 w-6 text-primary" /><div><div className="font-semibold">Notebook</div><div className="text-sm text-muted-foreground">Your patterns & notes</div></div>
           </Link>
           <Link to="/leaderboard" className="flex items-center gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/30">
             <TrendingUp className="h-6 w-6 text-primary" /><div><div className="font-semibold">Leaderboard</div><div className="text-sm text-muted-foreground">See global rankings</div></div>
