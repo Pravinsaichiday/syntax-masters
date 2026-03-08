@@ -16,6 +16,8 @@ export type Profile = {
   rank: number;
   streak: number;
   solved_count: number;
+  created_at: string;
+  updated_at: string;
 };
 
 type AuthContextType = {
