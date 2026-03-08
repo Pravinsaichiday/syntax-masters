@@ -115,7 +115,7 @@ export default function ProblemPage() {
       setAlreadySolved(false);
       setSolutionCode(null);
       setCustomOutput("");
-      setApproachUnlocked(false);
+      
       const lang = (profile as any)?.default_language || "C++";
       setLanguage(lang);
       setCode(LANG_MAP[lang]?.template || LANG_MAP["C++"].template);
