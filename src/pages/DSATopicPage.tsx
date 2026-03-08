@@ -1,5 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { DSA_ROADMAP, type DSAProblem } from "@/data/dsaRoadmap";
+import { DSA_ROADMAP, DSA_TOPIC_TO_DB_TOPICS, type DSAProblem } from "@/data/dsaRoadmap";
+import { ALL_PROBLEMS } from "@/data/problemsDatabase";
 import Navbar from "@/components/Navbar";
 import { useState, useCallback } from "react";
 import Editor from "@monaco-editor/react";
@@ -68,9 +69,17 @@ export default function DSATopicPage() {
   }
 
   const allProblems = topic.subtopics.flatMap(s => s.problems);
+  // Get matching problems from main database
+  const dbTopicTags = DSA_TOPIC_TO_DB_TOPICS[topicId || ""] || [];
+  const dbProblems = ALL_PROBLEMS.filter(p => p.topics.some(t => dbTopicTags.includes(t)));
+  // Exclude problems already in DSA subtopics
+  const dsaProblemIds = new Set(allProblems.map(p => p.id));
+  const extraProblems = dbProblems.filter(p => !dsaProblemIds.has(p.id));
+  
+  const totalCount = allProblems.length + extraProblems.length;
   const isCompleted = (pid: string) => progress.some((p: any) => p.problem_id === pid && p.completed);
   const completedCount = allProblems.filter(p => isCompleted(p.id)).length;
-  const progressPercent = allProblems.length > 0 ? Math.round((completedCount / allProblems.length) * 100) : 0;
+  const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   const handleSelectProblem = (p: DSAProblem) => {
     setSelectedProblem(p);
@@ -235,7 +244,7 @@ export default function DSATopicPage() {
           {/* Progress */}
           <div className="mb-6 rounded-xl border border-border bg-card p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">{completedCount}/{allProblems.length} solved</span>
+              <span className="text-sm font-medium">{completedCount}/{totalCount} solved</span>
               <span className="text-sm font-bold text-primary">{progressPercent}%</span>
             </div>
             <Progress value={progressPercent} className="h-2.5" />
@@ -322,8 +331,41 @@ export default function DSATopicPage() {
                 <pre className="text-xs font-mono text-foreground/80">Input: {ex.input}{"\n"}Output: {ex.output}</pre>
                 {ex.explanation && <p className="text-xs text-muted-foreground mt-1">{ex.explanation}</p>}
               </div>
-            ))}
+          ))}
 
+          {/* Additional problems from main database */}
+          {extraProblems.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold mb-1">More {topic.title} Problems</h2>
+              <p className="text-sm text-muted-foreground mb-3">{extraProblems.length} additional practice problems from the problem set</p>
+              <div className="space-y-2">
+                {extraProblems.map((p, i) => (
+                  <Link
+                    key={p.id}
+                    to={`/problem/${p.id}`}
+                    className="w-full rounded-lg border border-border bg-card p-4 text-left transition-all hover:border-primary/30 flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Circle className="h-5 w-5 text-muted-foreground shrink-0" />
+                      <div>
+                        <span className="font-medium text-sm">{p.title}</span>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${
+                            p.difficulty === "Very Easy" || p.difficulty === "Easy" ? "bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))]" :
+                            p.difficulty === "Basic" || p.difficulty === "Intermediate" ? "bg-primary/10 text-primary" :
+                            "bg-destructive/10 text-destructive"
+                          }`}>{p.difficulty}</span>
+                          <span className="text-xs text-primary">+{p.xpReward} XP</span>
+                          <span className="text-xs text-muted-foreground">{p.acceptance}%</span>
+                        </div>
+                      </div>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
             {/* Constraints */}
             <div className="mt-3">
               <p className="text-xs font-semibold text-muted-foreground mb-1">Constraints:</p>

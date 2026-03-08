@@ -1072,3 +1072,20 @@ export function getAllDSAProblems(): DSAProblem[] {
   }
   return problems;
 }
+
+// Mapping from DSA topic IDs to problem database topic tags
+export const DSA_TOPIC_TO_DB_TOPICS: Record<string, string[]> = {
+  arrays: ["Arrays", "Two Pointers", "Sliding Window", "Matrix"],
+  hashing: ["Hash Table", "Hash Maps"],
+  "linked-lists": ["Linked List", "Linked Lists"],
+  "stacks-queues": ["Stack", "Queue", "Stacks", "Queues"],
+  trees: ["Trees", "Binary Search Tree"],
+  graphs: ["Graphs"],
+  dp: ["Dynamic Programming"],
+  "sorting-searching": ["Sorting", "Searching", "Binary Search"],
+  heaps: ["Heap", "Heaps"],
+  backtracking: ["Backtracking", "Recursion"],
+  greedy: ["Greedy"],
+  "bit-manipulation": ["Bit Manipulation"],
+};
+
