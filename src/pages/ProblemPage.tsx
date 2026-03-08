@@ -3,7 +3,7 @@ import { ALL_PROBLEMS } from "@/data/problemsDatabase";
 import Navbar from "@/components/Navbar";
 import Discussion from "@/components/Discussion";
 import ProblemNotes from "@/components/ProblemNotes";
-import ApproachGate from "@/components/ApproachGate";
+
 import SubmissionsHistory from "@/components/SubmissionsHistory";
 import { useState, useCallback, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
