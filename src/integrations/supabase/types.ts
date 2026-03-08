@@ -14,7 +14,105 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          daily_time: string | null
+          id: string
+          language: string | null
+          level: string | null
+          name: string
+          onboarded: boolean
+          rank: number
+          solved_count: number
+          streak: number
+          updated_at: string
+          user_id: string
+          username: string | null
+          xp: number
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          daily_time?: string | null
+          id?: string
+          language?: string | null
+          level?: string | null
+          name: string
+          onboarded?: boolean
+          rank?: number
+          solved_count?: number
+          streak?: number
+          updated_at?: string
+          user_id: string
+          username?: string | null
+          xp?: number
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          daily_time?: string | null
+          id?: string
+          language?: string | null
+          level?: string | null
+          name?: string
+          onboarded?: boolean
+          rank?: number
+          solved_count?: number
+          streak?: number
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+          xp?: number
+        }
+        Relationships: []
+      }
+      submissions: {
+        Row: {
+          code: string
+          created_at: string
+          execution_time_ms: number | null
+          id: string
+          language: string
+          memory_mb: number | null
+          output: string | null
+          problem_id: string
+          test_cases_passed: number | null
+          test_cases_total: number | null
+          user_id: string
+          verdict: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          execution_time_ms?: number | null
+          id?: string
+          language: string
+          memory_mb?: number | null
+          output?: string | null
+          problem_id: string
+          test_cases_passed?: number | null
+          test_cases_total?: number | null
+          user_id: string
+          verdict: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          execution_time_ms?: number | null
+          id?: string
+          language?: string
+          memory_mb?: number | null
+          output?: string | null
+          problem_id?: string
+          test_cases_passed?: number | null
+          test_cases_total?: number | null
+          user_id?: string
+          verdict?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
