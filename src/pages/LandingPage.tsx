@@ -137,7 +137,7 @@ export default function LandingPage() {
         <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 md:flex-row">
           <div className="flex items-center gap-2">
             <Code2 className="h-5 w-5 text-primary" />
-            <span className="font-semibold">CodeForge</span>
+            <span className="font-semibold">SyntaxMasters</span>
           </div>
           <p
             className="text-sm text-muted-foreground cursor-default select-none"
