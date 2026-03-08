@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { PROBLEMS } from "@/data/mockData";
 import { PYTHON_TOPICS } from "@/data/pythonTopics";
 import { motion } from "framer-motion";
-import { Target, Zap, Flame, TrendingUp, Calendar, Award, Pencil, Check, X, CheckCircle2, ExternalLink, BookOpen, Camera } from "lucide-react";
+import { Target, Zap, Flame, TrendingUp, Calendar, Award, Pencil, Check, X, CheckCircle2, ExternalLink, BookOpen, Camera, Trophy } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
