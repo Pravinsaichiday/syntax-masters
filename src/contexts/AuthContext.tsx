@@ -1,6 +1,6 @@
-import { createContext, useContext, useState, ReactNode, useCallback, useEffect } from "react";
+import { createContext, useContext, useState, ReactNode, useCallback, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import type { User as SupabaseUser } from "@supabase/supabase-js";
+import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
 
 export type Profile = {
   id: string;
@@ -41,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isNewLogin, setIsNewLogin] = useState(false);
+  const isSessionRestoredRef = useRef(false);
 
   const fetchProfile = useCallback(async (userId: string) => {
     const { data } = await supabase
@@ -56,31 +57,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) await fetchProfile(user.id);
   }, [user, fetchProfile]);
 
-  useEffect(() => {
-    // Set up auth listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        setUser(session.user);
-        // Use setTimeout to avoid deadlock with Supabase client
-        setTimeout(() => fetchProfile(session.user.id), 0);
-      } else {
-        setUser(null);
-        setProfile(null);
-      }
-      setLoading(false);
-    });
+  const applySession = useCallback((session: Session | null) => {
+    const nextUser = session?.user ?? null;
+    setUser(nextUser);
 
-    // Then check existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setUser(session.user);
-        fetchProfile(session.user.id);
-      }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    if (nextUser) {
+      void fetchProfile(nextUser.id);
+    } else {
+      setProfile(null);
+    }
   }, [fetchProfile]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted || !isSessionRestoredRef.current) return;
+      applySession(session);
+    });
+
+    void supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!isMounted) return;
+      applySession(session);
+      isSessionRestoredRef.current = true;
+      setLoading(false);
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [applySession]);
 
   const signup = useCallback(async (name: string, email: string, password: string) => {
     const { error } = await supabase.auth.signUp({
