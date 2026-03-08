@@ -367,14 +367,14 @@ export default function ProfilePage() {
           <h2 className="mb-4 text-lg font-semibold flex items-center gap-2"><Calendar className="h-5 w-5 text-primary" />Activity</h2>
           <div className="overflow-x-auto">
             <div className="flex gap-[3px]" style={{ minWidth: "750px" }}>
-              {Array.from({ length: 52 }, (_, week) => (
+              {Array.from({ length: Math.ceil(heatmap.length / 7) }, (_, week) => (
                 <div key={week} className="flex flex-col gap-[3px]">
                   {Array.from({ length: 7 }, (_, day) => {
                     const idx = week * 7 + day;
                     const d = heatmap[idx];
                     if (!d) return <div key={day} className="h-3 w-3" />;
                     const intensity = d.count === 0 ? "bg-surface-3" : d.count <= 2 ? "bg-primary/20" : d.count <= 4 ? "bg-primary/40" : d.count <= 6 ? "bg-primary/60" : "bg-primary";
-                    return <div key={day} className={`h-3 w-3 rounded-sm ${intensity}`} title={`${d.date}: ${d.count} submissions`} />;
+                    return <div key={day} className={`h-3 w-3 rounded-sm ${intensity}`} title={`${d.date}: ${d.count} activities`} />;
                   })}
                 </div>
               ))}
