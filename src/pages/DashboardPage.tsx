@@ -11,8 +11,26 @@ import { supabase } from "@/integrations/supabase/client";
 const dailyProblems = PROBLEMS.slice(0, 3);
 
 export default function DashboardPage() {
-  const { profile, isAuthenticated, loading } = useAuth();
+  const { profile, user, isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
+
+  // Fetch leaderboard rank
+  const { data: leaderboardRank } = useQuery({
+    queryKey: ["leaderboard-rank", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from("profiles")
+        .select("user_id, xp")
+        .gt("solved_count", 0)
+        .order("xp", { ascending: false })
+        .limit(500);
+      if (!data) return null;
+      const idx = data.findIndex(p => p.user_id === user.id);
+      return idx >= 0 ? idx + 1 : null;
+    },
+    enabled: !!user,
+  });
 
   useEffect(() => {
     if (!loading && !isAuthenticated) navigate("/login");
