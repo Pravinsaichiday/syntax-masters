@@ -230,7 +230,7 @@ export default function ProblemPage() {
         {/* Left: Problem Description */}
         <div className="w-full overflow-y-auto border-r border-border p-6 lg:w-[45%]">
           <div className="mb-4 flex items-center gap-3">
-            <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${problem.difficulty === "Easy" ? "bg-success/10 text-success" : problem.difficulty === "Medium" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}>{problem.difficulty}</span>
+            <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${problem.difficulty === "Easy" || problem.difficulty === "Very Easy" ? "bg-success/10 text-success" : problem.difficulty === "Basic" || problem.difficulty === "Intermediate" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}>{problem.difficulty}</span>
             <span className="text-xs text-muted-foreground">{problem.source}</span>
             <span className="text-xs text-primary">+{problem.xpReward} XP</span>
             {alreadySolved && <span className="rounded-md bg-success/10 px-2 py-0.5 text-xs font-bold text-success">✓ Solved</span>}

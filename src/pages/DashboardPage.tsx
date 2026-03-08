@@ -99,7 +99,7 @@ export default function DashboardPage() {
               <motion.div key={p.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.1 }}>
                 <Link to={`/problem/${p.id}`} className="block rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/30 hover:glow-gold-sm">
                   <div className="mb-2 flex items-center justify-between">
-                    <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${p.difficulty === "Easy" ? "bg-success/10 text-success" : p.difficulty === "Medium" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}>{p.difficulty}</span>
+                    <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${p.difficulty === "Easy" || p.difficulty === "Very Easy" ? "bg-success/10 text-success" : p.difficulty === "Basic" || p.difficulty === "Intermediate" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}>{p.difficulty}</span>
                     <span className="text-xs text-muted-foreground">+{p.xpReward} XP</span>
                   </div>
                   <h3 className="font-semibold">{p.title}</h3>
