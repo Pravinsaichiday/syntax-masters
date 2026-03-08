@@ -78,8 +78,22 @@ Respond in this exact JSON format only, no other text:
 }
 
 Be strict but fair. If the code logic is correct for all test cases, give Accepted. If it has bugs, give Wrong Answer. If it would exceed typical time limits (2 seconds), give TLE. If it has syntax errors, give Compilation Error.`;
+    } else if (mode === 'solution') {
+      const { constraints } = await req.json().catch(() => ({}));
+      prompt = `You are an expert competitive programmer. Provide a clean, optimal, well-commented solution in ${language} for the following problem.
+
+PROBLEM:
+${problemDescription}
+
+CONSTRAINTS:
+${JSON.stringify(constraints || [], null, 2)}
+
+SAMPLE TEST CASES:
+${JSON.stringify(sampleCases, null, 2)}
+
+Provide ONLY the complete solution code, no explanation outside the code. Add comments within the code explaining the approach and key steps. The code must handle all edge cases and be efficient.`;
     } else {
-      return new Response(JSON.stringify({ error: 'Invalid mode. Use "run" or "submit".' }), {
+      return new Response(JSON.stringify({ error: 'Invalid mode. Use "run", "submit", or "solution".' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
