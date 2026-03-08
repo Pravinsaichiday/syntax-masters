@@ -274,7 +274,7 @@ export default function ProblemPage() {
           <div className="mb-4 flex gap-2 flex-wrap">{problem.topics.map((t) => <span key={t} className="rounded bg-surface-3 px-2 py-0.5 text-xs text-muted-foreground">{t}</span>)}</div>
 
           <div className="prose prose-sm prose-invert max-w-none">
-            <p className="text-sm leading-relaxed text-foreground/90">{problem.description}</p>
+            <p className="text-[15px] leading-relaxed text-foreground/90">{problem.description}</p>
 
             {/* Input Format */}
             <div className="mt-6 rounded-lg border border-border bg-surface-2 p-4">
