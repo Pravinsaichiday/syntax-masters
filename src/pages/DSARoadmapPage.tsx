@@ -13,7 +13,6 @@ export default function DSARoadmapPage() {
   const { user } = useAuth();
   const [activeTopicId, setActiveTopicId] = useState<string>(DSA_ROADMAP[0]?.id || "");
   const topicRefs = useRef<Record<string, HTMLElement | null>>({});
-  const sidebarRef = useRef<HTMLDivElement>(null);
 
   const { data: progress = [] } = useQuery({
     queryKey: ["dsa-progress-all", user?.id],
@@ -47,11 +46,10 @@ export default function DSARoadmapPage() {
     return { solved, total, percent: total > 0 ? Math.round((solved / total) * 100) : 0 };
   };
 
-  // Scrollspy logic
+  // Scrollspy
   const handleScroll = useCallback(() => {
-    const scrollY = window.scrollY + 200;
+    const scrollY = window.scrollY + 220;
     let currentId = DSA_ROADMAP[0]?.id || "";
-    
     for (const topic of DSA_ROADMAP) {
       const el = topicRefs.current[topic.id];
       if (el && el.offsetTop <= scrollY) {
@@ -63,21 +61,16 @@ export default function DSARoadmapPage() {
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
   const scrollToTopic = (topicId: string) => {
     const el = topicRefs.current[topicId];
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  // Calculate scroll progress for the vertical line
   const activeIndex = DSA_ROADMAP.findIndex(t => t.id === activeTopicId);
-  const scrollLinePercent = DSA_ROADMAP.length > 1
-    ? (activeIndex / (DSA_ROADMAP.length - 1)) * 100
-    : 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -89,8 +82,6 @@ export default function DSARoadmapPage() {
             DSA <span className="text-gradient-gold">Roadmap</span>
           </h1>
           <p className="text-muted-foreground mb-4">Master Data Structures & Algorithms from scratch — solve every problem topic by topic.</p>
-
-          {/* Overall progress */}
           <div className="rounded-xl border border-border bg-card p-5 glow-gold-sm">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium">Overall Progress</span>
@@ -101,53 +92,65 @@ export default function DSARoadmapPage() {
           </div>
         </motion.div>
 
-        {/* Main content with scrollspy sidebar */}
-        <div className="flex gap-6">
-          {/* Scrollspy Sidebar - hidden on mobile */}
-          <div className="hidden lg:block w-56 shrink-0">
-            <div ref={sidebarRef} className="sticky top-20">
+        {/* Main layout */}
+        <div className="flex gap-8">
+          {/* Scrollspy Sidebar */}
+          <div className="hidden lg:block w-60 shrink-0">
+            <div className="sticky top-20">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4 pl-6">Topics</p>
               <div className="relative">
-                {/* Background track line */}
-                <div className="absolute left-[7px] top-0 bottom-0 w-[2px] bg-border rounded-full" />
-                {/* Active progress line */}
+                {/* Track */}
+                <div className="absolute left-[9px] top-0 bottom-0 w-[3px] rounded-full bg-border" />
+                {/* Active fill */}
                 <div
-                  className="absolute left-[7px] top-0 w-[2px] rounded-full bg-primary transition-all duration-300 ease-out"
-                  style={{ height: `${scrollLinePercent}%` }}
+                  className="absolute left-[9px] top-0 w-[3px] rounded-full bg-primary transition-all duration-500 ease-out"
+                  style={{
+                    height: DSA_ROADMAP.length > 1
+                      ? `calc(${(activeIndex / (DSA_ROADMAP.length - 1)) * 100}% + 10px)`
+                      : "10px",
+                  }}
                 />
 
-                <div className="space-y-1 relative">
+                <ul className="relative space-y-0">
                   {DSA_ROADMAP.map((topic, i) => {
                     const tp = getTopicProgress(topic.id);
                     const isActive = activeTopicId === topic.id;
                     const isComplete = tp.percent === 100;
                     const hasProgress = tp.solved > 0;
+                    const isPast = i <= activeIndex;
 
                     return (
-                      <button
-                        key={topic.id}
-                        onClick={() => scrollToTopic(topic.id)}
-                        className={`flex items-center gap-2.5 w-full text-left py-1.5 pl-5 pr-2 rounded-r-md text-xs transition-all duration-200 ${
-                          isActive
-                            ? "text-primary font-semibold bg-primary/5"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        {/* Dot on the line */}
-                        <div className={`absolute left-[4px] h-[8px] w-[8px] rounded-full border-2 transition-all duration-200 ${
-                          isComplete
-                            ? "border-[hsl(var(--success))] bg-[hsl(var(--success))]"
-                            : isActive
-                            ? "border-primary bg-primary"
-                            : hasProgress
-                            ? "border-primary bg-primary/20"
-                            : "border-border bg-background"
-                        }`} />
-                        <span className="truncate">{i + 1}. {topic.title}</span>
-                        {isComplete && <CheckCircle2 className="h-3 w-3 text-[hsl(var(--success))] shrink-0" />}
-                      </button>
+                      <li key={topic.id}>
+                        <button
+                          onClick={() => scrollToTopic(topic.id)}
+                          className={`relative flex items-center gap-3 w-full text-left py-2 pl-7 pr-2 rounded-r-lg text-[13px] transition-all duration-200 ${
+                            isActive
+                              ? "text-primary font-bold bg-primary/5"
+                              : isPast
+                              ? "text-foreground/70"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          {/* Dot */}
+                          <span className={`absolute left-[3px] h-[15px] w-[15px] rounded-full border-[3px] transition-all duration-300 ${
+                            isComplete
+                              ? "border-[hsl(var(--success))] bg-[hsl(var(--success))] scale-100"
+                              : isActive
+                              ? "border-primary bg-primary scale-110"
+                              : hasProgress
+                              ? "border-primary/60 bg-primary/20"
+                              : isPast
+                              ? "border-primary/40 bg-primary/10"
+                              : "border-muted-foreground/30 bg-background"
+                          }`} />
+
+                          <span className="truncate leading-tight">{topic.title}</span>
+                          {isComplete && <CheckCircle2 className="h-3.5 w-3.5 text-[hsl(var(--success))] shrink-0 ml-auto" />}
+                        </button>
+                      </li>
                     );
                   })}
-                </div>
+                </ul>
               </div>
             </div>
           </div>
@@ -156,7 +159,6 @@ export default function DSARoadmapPage() {
           <div className="flex-1 space-y-5">
             {DSA_ROADMAP.map((topic, i) => {
               const tp = getTopicProgress(topic.id);
-              const isComplete = tp.percent === 100;
 
               return (
                 <motion.div
@@ -185,7 +187,6 @@ export default function DSARoadmapPage() {
                           </div>
                         </div>
 
-                        {/* Subtopics preview */}
                         <div className="mt-3 flex flex-wrap gap-2">
                           {topic.subtopics.map(sub => (
                             <span key={sub.id} className="rounded-md bg-secondary px-2.5 py-1 text-xs text-secondary-foreground">
@@ -194,7 +195,6 @@ export default function DSARoadmapPage() {
                           ))}
                         </div>
 
-                        {/* Progress bar */}
                         <div className="mt-3">
                           <div className="flex items-center justify-between mb-1">
                             <span className="text-xs text-muted-foreground">{tp.solved}/{tp.total} problems</span>
