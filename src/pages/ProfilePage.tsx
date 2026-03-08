@@ -49,6 +49,39 @@ export default function ProfilePage() {
     enabled: !!userId,
   });
 
+  // Python progress
+  const { data: pythonProgress = [] } = useQuery({
+    queryKey: ["user-python-progress", userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data } = await supabase
+        .from("python_progress")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("completed", true);
+      return data || [];
+    },
+    enabled: !!userId,
+  });
+
+  // Solved problems list
+  const solvedProblems = useMemo(() => {
+    const accepted = new Set<string>();
+    submissions.forEach((s: any) => {
+      if (s.verdict === "Accepted") accepted.add(s.problem_id);
+    });
+    return PROBLEMS.filter(p => accepted.has(p.id));
+  }, [submissions]);
+
+  // Solved python questions
+  const solvedPython = useMemo(() => {
+    return pythonProgress.map((p: any) => {
+      const topic = PYTHON_TOPICS.find(t => t.id === p.topic_id);
+      const question = topic?.questions.find(q => q.id === p.question_id);
+      return question ? { ...question, topicTitle: topic?.title || "" } : null;
+    }).filter(Boolean);
+  }, [pythonProgress]);
+
   const heatmap = useMemo(() => {
     const days: { date: string; count: number }[] = [];
     const counts: Record<string, number> = {};
