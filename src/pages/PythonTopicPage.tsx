@@ -1,21 +1,24 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { PYTHON_TOPICS } from "@/data/pythonTopics";
 import Navbar from "@/components/Navbar";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
-import { Play, CheckCircle2, Circle, ArrowLeft, Lightbulb, BookOpen } from "lucide-react";
+import { Play, CheckCircle2, Circle, ArrowLeft, Lightbulb, BookOpen, Trophy, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import confetti from "canvas-confetti";
 import type { PythonQuestion } from "@/data/pythonTopics";
 
 export default function PythonTopicPage() {
   const { topicId } = useParams();
   const { user, profile, updateProfile } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const topic = PYTHON_TOPICS.find(t => t.id === topicId);
   
   const [activeTab, setActiveTab] = useState<"lesson" | "practice">("lesson");
@@ -24,6 +27,40 @@ export default function PythonTopicPage() {
   const [output, setOutput] = useState("");
   const [running, setRunning] = useState(false);
   const [showHints, setShowHints] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [earnedXp, setEarnedXp] = useState(0);
+
+  const fireConfetti = useCallback(() => {
+    const end = Date.now() + 1500;
+    const colors = ["#FFD700", "#FFA500", "#FF6347", "#00CED1", "#7B68EE"];
+    (function frame() {
+      confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 }, colors });
+      confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 }, colors });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    })();
+  }, []);
+
+  const getNextQuestion = useCallback(() => {
+    if (!topic || !selectedQuestion) return null;
+    const idx = topic.questions.findIndex(q => q.id === selectedQuestion.id);
+    return idx < topic.questions.length - 1 ? topic.questions[idx + 1] : null;
+  }, [topic, selectedQuestion]);
+
+  const handleGoToNext = () => {
+    const next = getNextQuestion();
+    if (next) {
+      handleSelectQuestion(next);
+      setShowSuccess(false);
+    } else {
+      const topicIdx = PYTHON_TOPICS.findIndex(t => t.id === topicId);
+      if (topicIdx < PYTHON_TOPICS.length - 1) {
+        navigate(`/learn-python/${PYTHON_TOPICS[topicIdx + 1].id}`);
+      } else {
+        navigate("/learn-python");
+      }
+      setShowSuccess(false);
+    }
+  };
 
   const { data: progress = [] } = useQuery({
     queryKey: ["python-progress", user?.id, topicId],
@@ -83,7 +120,7 @@ export default function PythonTopicPage() {
       );
 
       if (verdict === "Accepted") {
-        toast.success(`Correct! +${selectedQuestion.xpReward} XP`);
+        const alreadySolved = isCompleted(selectedQuestion.id);
         
         // Save progress
         await supabase.from("python_progress").upsert({
@@ -95,14 +132,22 @@ export default function PythonTopicPage() {
           code,
         }, { onConflict: "user_id,topic_id,question_id" });
 
-        if (profile) {
+        if (!alreadySolved && profile) {
           await updateProfile({
             xp: profile.xp + selectedQuestion.xpReward,
             solved_count: profile.solved_count + 1,
           });
+          setEarnedXp(selectedQuestion.xpReward);
+        } else {
+          setEarnedXp(0);
         }
 
         queryClient.invalidateQueries({ queryKey: ["python-progress"] });
+        
+        // Fire celebration
+        fireConfetti();
+        setShowSuccess(true);
+        toast.success(alreadySolved ? "Correct!" : `Correct! +${selectedQuestion.xpReward} XP`);
       } else {
         toast.error(verdict || "Try again!");
       }
@@ -269,8 +314,15 @@ export default function PythonTopicPage() {
                       options={{ fontSize: 14, fontFamily: '"JetBrains Mono", monospace', minimap: { enabled: false }, padding: { top: 16 }, scrollBeyondLastLine: false, tabSize: 4, automaticLayout: true }}
                     />
                   </div>
-                  <div className="border-t border-border">
-                    <div className="px-4 py-2 border-b border-border text-sm font-medium">Output</div>
+                   <div className="border-t border-border">
+                    <div className="flex items-center justify-between px-4 py-2 border-b border-border">
+                      <span className="text-sm font-medium">Output</span>
+                      {selectedQuestion && isCompleted(selectedQuestion.id) && (
+                        <Button size="sm" onClick={handleGoToNext} className="bg-gradient-gold font-semibold">
+                          {getNextQuestion() ? "Next Question" : "Next Topic"} <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </div>
                     <pre className="h-28 overflow-y-auto p-4 font-mono text-xs text-muted-foreground">
                       {running ? "Processing..." : output || "Run your code to see output here."}
                     </pre>
@@ -281,6 +333,26 @@ export default function PythonTopicPage() {
           </motion.div>
         )}
       </div>
+
+      {/* Success Dialog */}
+      <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
+        <DialogContent className="text-center sm:max-w-md border-border bg-card">
+          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="flex flex-col items-center gap-4 py-4">
+            <div className="rounded-full bg-primary/10 p-4">
+              <Trophy className="h-10 w-10 text-primary" />
+            </div>
+            <h2 className="text-xl font-bold">Problem Solved! 🎉</h2>
+            {earnedXp > 0 && <p className="text-muted-foreground">You earned <span className="font-bold text-primary">+{earnedXp} XP</span></p>}
+            {earnedXp === 0 && <p className="text-muted-foreground">Already completed — no extra XP</p>}
+            <div className="flex gap-3 mt-2">
+              <Button variant="outline" onClick={() => setShowSuccess(false)}>Stay Here</Button>
+              <Button onClick={handleGoToNext} className="bg-gradient-gold font-semibold">
+                {getNextQuestion() ? "Next Question" : "Next Topic"} <ArrowRight className="ml-1 h-4 w-4" />
+              </Button>
+            </div>
+          </motion.div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
