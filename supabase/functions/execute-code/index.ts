@@ -123,7 +123,27 @@ Provide ONLY the complete solution code, no explanation outside the code. Add co
     const data = await response.json();
     const textContent = data.choices?.[0]?.message?.content || '';
 
-    // Extract JSON from the response
+    // For solution mode, return the raw text as solution code
+    if (mode === 'solution') {
+      // Strip markdown code fences if present
+      let solution = textContent.replace(/^```[\w]*\n?/, '').replace(/\n?```$/, '').trim();
+      
+      // Track usage
+      try {
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+        const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        const sb = createClient(supabaseUrl, serviceRoleKey);
+        const { data: countRow } = await sb.from('admin_settings').select('value').eq('key', 'gemini_usage_count').single();
+        const current = parseInt(countRow?.value || '0');
+        await sb.from('admin_settings').update({ value: String(current + 1) }).eq('key', 'gemini_usage_count');
+      } catch (e) { console.error('Usage tracking error:', e); }
+
+      return new Response(JSON.stringify({ solution }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Extract JSON from the response for run/submit modes
     let result;
     try {
       const jsonMatch = textContent.match(/\{[\s\S]*\}/);
