@@ -30,8 +30,11 @@ type Verdict = "Accepted" | "Wrong Answer" | "Time Limit Exceeded" | "Compilatio
 
 export default function ProblemPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user, updateProfile, profile } = useAuth();
   const problem = PROBLEMS.find((p) => p.id === id);
+  const currentIndex = PROBLEMS.findIndex((p) => p.id === id);
+  const nextProblem = currentIndex >= 0 && currentIndex < PROBLEMS.length - 1 ? PROBLEMS[currentIndex + 1] : null;
 
   const [language, setLanguage] = useState("C++");
   const [code, setCode] = useState(LANG_MAP["C++"].template);
@@ -39,6 +42,19 @@ export default function ProblemPage() {
   const [verdict, setVerdict] = useState<Verdict>(null);
   const [running, setRunning] = useState(false);
   const [showHints, setShowHints] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const fireConfetti = useCallback(() => {
+    const duration = 3000;
+    const end = Date.now() + duration;
+    const colors = ["#FFD700", "#FFA500", "#FF6347", "#00CED1", "#7B68EE", "#32CD32"];
+    const frame = () => {
+      confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors });
+      confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    };
+    frame();
+  }, []);
 
   if (!problem) {
     return <div className="min-h-screen bg-background"><Navbar /><div className="flex items-center justify-center py-20 text-muted-foreground">Problem not found.</div></div>;
