@@ -86,7 +86,7 @@ export default function AdminDashboardPage() {
       if (error) throw error;
       if (key === "maintenance_mode") setMaintenanceMode(value === "true");
       if (key === "python_locked") setPythonLocked(value === "true");
-      toast.success(`${key.replaceAll("_", " ")} updated`);
+      toast.success(`${key.replace(/_/g, " ")} updated`);
     } catch (err: any) {
       toast.error(err.message || "Failed to update setting");
     } finally {
