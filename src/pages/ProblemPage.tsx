@@ -3,7 +3,7 @@ import { ALL_PROBLEMS } from "@/data/problemsDatabase";
 import Navbar from "@/components/Navbar";
 import Discussion from "@/components/Discussion";
 import ProblemNotes from "@/components/ProblemNotes";
-import ApproachGate from "@/components/ApproachGate";
+
 import SubmissionsHistory from "@/components/SubmissionsHistory";
 import { useState, useCallback, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
@@ -79,7 +79,7 @@ export default function ProblemPage() {
   const [activeTab, setActiveTab] = useState<"output" | "custom">("output");
   const [customInput, setCustomInput] = useState("");
   const [customOutput, setCustomOutput] = useState("");
-  const [approachUnlocked, setApproachUnlocked] = useState(false);
+  
 
   // Timer for time-taken tracking
   const startTimeRef = useRef<number>(Date.now());
@@ -101,7 +101,6 @@ export default function ProblemPage() {
       .then(({ data }) => {
         if (data && data.length > 0) {
           setAlreadySolved(true);
-          setApproachUnlocked(true);
           setCode(data[0].code);
           setLanguage(data[0].language);
         }
@@ -116,7 +115,7 @@ export default function ProblemPage() {
       setAlreadySolved(false);
       setSolutionCode(null);
       setCustomOutput("");
-      setApproachUnlocked(false);
+      
       const lang = (profile as any)?.default_language || "C++";
       setLanguage(lang);
       setCode(LANG_MAP[lang]?.template || LANG_MAP["C++"].template);
@@ -378,13 +377,6 @@ export default function ProblemPage() {
 
         {/* Right: Code Editor */}
         <div className="flex w-full flex-col lg:w-[55%]">
-          {/* Approach Gate */}
-          <div className="px-4 pt-3">
-            <ApproachGate
-              onUnlock={() => setApproachUnlocked(true)}
-              isUnlocked={approachUnlocked || alreadySolved || !user}
-            />
-          </div>
 
           <div className="flex items-center justify-between border-b border-border px-4 py-2">
             <div className="flex items-center gap-2">
@@ -404,16 +396,16 @@ export default function ProblemPage() {
               </button>
             </div>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => callExecuteCode("run")} disabled={running || (!approachUnlocked && !!user && !alreadySolved)}>
+              <Button size="sm" variant="outline" onClick={() => callExecuteCode("run")} disabled={running}>
                 <Play className="mr-1 h-3.5 w-3.5" />Run
               </Button>
-              <Button size="sm" onClick={() => callExecuteCode("submit")} disabled={running || (!approachUnlocked && !!user && !alreadySolved)} className="bg-gradient-gold font-semibold">
+              <Button size="sm" onClick={() => callExecuteCode("submit")} disabled={running} className="bg-gradient-gold font-semibold">
                 <Send className="mr-1 h-3.5 w-3.5" />Submit
               </Button>
             </div>
           </div>
 
-          <div className={`flex-1 min-h-[300px] ${(!approachUnlocked && !!user && !alreadySolved) ? "opacity-40 pointer-events-none" : ""}`}>
+          <div className="flex-1 min-h-[300px]">
             <Editor
               height="100%"
               language={LANG_MONACO[language] || "plaintext"}

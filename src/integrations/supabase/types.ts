@@ -135,6 +135,7 @@ export type Database = {
       }
       notebook_entries: {
         Row: {
+          attachments: Json | null
           category: string
           content: string
           created_at: string
@@ -144,6 +145,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          attachments?: Json | null
           category?: string
           content?: string
           created_at?: string
@@ -153,6 +155,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          attachments?: Json | null
           category?: string
           content?: string
           created_at?: string
