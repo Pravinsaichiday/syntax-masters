@@ -16,7 +16,8 @@ import ProblemsPage from "./pages/ProblemsPage";
 import ProblemPage from "./pages/ProblemPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import ProfilePage from "./pages/ProfilePage";
-import ContestsPage from "./pages/ContestsPage";
+import DSARoadmapPage from "./pages/DSARoadmapPage";
+import DSATopicPage from "./pages/DSATopicPage";
 import LearnPythonPage from "./pages/LearnPythonPage";
 import PythonTopicPage from "./pages/PythonTopicPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
@@ -72,7 +73,8 @@ function AppRoutes() {
         <Route path="/problem/:id" element={<ProblemPage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/profile/:username" element={<ProfilePage />} />
-        <Route path="/contests" element={<ContestsPage />} />
+        <Route path="/dsa" element={<DSARoadmapPage />} />
+        <Route path="/dsa/:topicId" element={<DSATopicPage />} />
         <Route path="/learn-python" element={<LearnPythonPage />} />
         <Route path="/learn-python/:topicId" element={<PythonTopicPage />} />
         <Route path="/admin" element={<AdminDashboardPage />} />

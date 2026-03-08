@@ -23,7 +23,7 @@ export default function Navbar() {
               <Link to="/dashboard" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Dashboard</Link>
               <Link to="/problems" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Problems</Link>
               <Link to="/leaderboard" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Leaderboard</Link>
-              <Link to="/contests" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Contests</Link>
+              <Link to="/dsa" className="text-sm text-muted-foreground transition-colors hover:text-foreground">DSA Roadmap</Link>
               <Link to={`/profile/${profile?.username || profile?.user_id}`} className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
                 <User className="h-4 w-4" />{profile?.name}
               </Link>
@@ -52,7 +52,7 @@ export default function Navbar() {
                 <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="text-sm text-muted-foreground">Dashboard</Link>
                 <Link to="/problems" onClick={() => setMenuOpen(false)} className="text-sm text-muted-foreground">Problems</Link>
                 <Link to="/leaderboard" onClick={() => setMenuOpen(false)} className="text-sm text-muted-foreground">Leaderboard</Link>
-                <Link to="/contests" onClick={() => setMenuOpen(false)} className="text-sm text-muted-foreground">Contests</Link>
+                <Link to="/dsa" onClick={() => setMenuOpen(false)} className="text-sm text-muted-foreground">DSA Roadmap</Link>
                 <Link to={`/profile/${profile?.username || profile?.user_id}`} onClick={() => setMenuOpen(false)} className="text-sm text-muted-foreground">Profile</Link>
                 <Button variant="ghost" size="sm" onClick={() => { logout(); navigate("/"); setMenuOpen(false); }}>Log Out</Button>
               </>
