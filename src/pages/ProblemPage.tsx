@@ -1,10 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { PROBLEMS } from "@/data/mockData";
 import Navbar from "@/components/Navbar";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
-import { Play, Send, Lightbulb, ArrowRight, Trophy } from "lucide-react";
+import { Play, Send, Lightbulb, ArrowRight, Trophy, Code2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,6 +43,36 @@ export default function ProblemPage() {
   const [running, setRunning] = useState(false);
   const [showHints, setShowHints] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [alreadySolved, setAlreadySolved] = useState(false);
+  const [solutionCode, setSolutionCode] = useState<string | null>(null);
+  const [loadingSolution, setLoadingSolution] = useState(false);
+
+  // Check if user already solved this problem
+  useEffect(() => {
+    if (!user || !problem) return;
+    supabase
+      .from("submissions")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("problem_id", problem.id)
+      .eq("verdict", "Accepted")
+      .limit(1)
+      .then(({ data }) => {
+        setAlreadySolved(!!(data && data.length > 0));
+      });
+  }, [user, problem?.id]);
+
+  // Reset state when problem changes
+  useEffect(() => {
+    if (id) {
+      setVerdict(null);
+      setOutput("");
+      setShowSuccess(false);
+      setAlreadySolved(false);
+      setSolutionCode(null);
+      setCode(LANG_MAP[language]?.template || "");
+    }
+  }, [id]);
 
   const fireConfetti = useCallback(() => {
     const duration = 3000;
@@ -55,6 +85,42 @@ export default function ProblemPage() {
     };
     frame();
   }, []);
+
+  const handleGetSolution = async () => {
+    if (!user || !profile || !problem) {
+      toast.error("Please log in to unlock solutions");
+      return;
+    }
+    if (profile.xp < 20) {
+      toast.error("Not enough XP! You need at least 20 XP to unlock a solution.");
+      return;
+    }
+
+    setLoadingSolution(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("execute-code", {
+        body: {
+          code: "",
+          language,
+          problemDescription: problem.description,
+          sampleCases: problem.sampleCases,
+          mode: "solution",
+          constraints: problem.constraints,
+        },
+      });
+      if (error) throw error;
+
+      setSolutionCode(data.solution || "No solution generated");
+      // Deduct 20 XP
+      await updateProfile({ xp: Math.max(0, profile.xp - 20) });
+      toast.success("Solution unlocked! -20 XP deducted.");
+    } catch (err: any) {
+      console.error("Solution error:", err);
+      toast.error("Failed to generate solution");
+    } finally {
+      setLoadingSolution(false);
+    }
+  };
 
   if (!problem) {
     return <div className="min-h-screen bg-background"><Navbar /><div className="flex items-center justify-center py-20 text-muted-foreground">Problem not found.</div></div>;
@@ -95,10 +161,11 @@ export default function ProblemPage() {
         );
 
         if (v === "Accepted") {
-          toast.success(`Accepted! +${problem.xpReward} XP`);
           fireConfetti();
           setShowSuccess(true);
+
           if (user) {
+            // Always record the submission
             await supabase.from("submissions").insert({
               user_id: user.id,
               problem_id: problem.id,
@@ -111,11 +178,17 @@ export default function ProblemPage() {
               test_cases_passed: data.testCasesPassed,
               test_cases_total: data.testCasesTotal,
             });
-            if (profile) {
+
+            // Only award XP and increment solved_count if NOT already solved
+            if (!alreadySolved && profile) {
               await updateProfile({
                 xp: profile.xp + problem.xpReward,
                 solved_count: profile.solved_count + 1,
               });
+              toast.success(`Accepted! +${problem.xpReward} XP`);
+              setAlreadySolved(true);
+            } else {
+              toast.success("Accepted! (Already solved — no extra XP)");
             }
           }
         } else {
@@ -155,14 +228,23 @@ export default function ProblemPage() {
             <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${problem.difficulty === "Easy" ? "bg-success/10 text-success" : problem.difficulty === "Medium" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}>{problem.difficulty}</span>
             <span className="text-xs text-muted-foreground">{problem.source}</span>
             <span className="text-xs text-primary">+{problem.xpReward} XP</span>
+            {alreadySolved && <span className="rounded-md bg-success/10 px-2 py-0.5 text-xs font-bold text-success">✓ Solved</span>}
           </div>
           <h1 className="mb-4 text-xl font-bold">{problem.title}</h1>
           <div className="mb-4 flex gap-2">{problem.topics.map((t) => <span key={t} className="rounded bg-surface-3 px-2 py-0.5 text-xs text-muted-foreground">{t}</span>)}</div>
 
           <div className="prose prose-sm prose-invert max-w-none">
             <p className="text-sm leading-relaxed text-foreground/90">{problem.description}</p>
-            <h3 className="mt-6 text-sm font-semibold text-foreground">Constraints</h3>
+
+            <h3 className="mt-6 text-sm font-semibold text-foreground">Input Format</h3>
+            <p className="text-sm text-muted-foreground">{problem.inputFormat}</p>
+
+            <h3 className="mt-4 text-sm font-semibold text-foreground">Output Format</h3>
+            <p className="text-sm text-muted-foreground">{problem.outputFormat}</p>
+
+            <h3 className="mt-4 text-sm font-semibold text-foreground">Constraints</h3>
             <ul className="mt-1 space-y-1">{problem.constraints.map((c, i) => <li key={i} className="text-sm font-mono text-muted-foreground">{c}</li>)}</ul>
+
             <h3 className="mt-6 text-sm font-semibold text-foreground">Sample Cases</h3>
             {problem.sampleCases.map((sc, i) => (
               <div key={i} className="mt-3 rounded-lg bg-surface-2 p-4">
@@ -173,13 +255,42 @@ export default function ProblemPage() {
             ))}
           </div>
 
+          {/* Hints */}
           <div className="mt-6">
             <button onClick={() => setShowHints(!showHints)} className="flex items-center gap-2 text-sm text-primary hover:underline">
               <Lightbulb className="h-4 w-4" />{showHints ? "Hide Hints" : "Show Hints"}
             </button>
             {showHints && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-3">
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-3 space-y-2">
                 {problem.hints.map((h, i) => <div key={i} className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-sm text-foreground/80">{h}</div>)}
+              </motion.div>
+            )}
+          </div>
+
+          {/* Get AI Solution - costs 20 XP */}
+          <div className="mt-6 rounded-lg border border-border bg-surface-2 p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <Code2 className="h-4 w-4 text-primary" /> Get AI Solution
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1">Costs <span className="font-bold text-destructive">20 XP</span> • Use wisely!</p>
+              </div>
+              {!solutionCode && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleGetSolution}
+                  disabled={loadingSolution}
+                  className="border-primary/30 text-primary hover:bg-primary/10"
+                >
+                  {loadingSolution ? <><Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />Generating...</> : <>Unlock Solution (-20 XP)</>}
+                </Button>
+              )}
+            </div>
+            {solutionCode && (
+              <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="mt-4">
+                <pre className="rounded-lg bg-background p-4 text-xs font-mono text-foreground overflow-x-auto max-h-64 overflow-y-auto">{solutionCode}</pre>
               </motion.div>
             )}
           </div>
@@ -249,7 +360,12 @@ export default function ProblemPage() {
               <Trophy className="h-8 w-8 text-success" />
             </div>
             <h2 className="text-2xl font-bold mb-2">Problem Solved! 🎉</h2>
-            <p className="text-muted-foreground mb-1">You earned <span className="font-bold text-primary">+{problem?.xpReward} XP</span></p>
+            <p className="text-muted-foreground mb-1">
+              {alreadySolved
+                ? "You've already solved this one!"
+                : <>You earned <span className="font-bold text-primary">+{problem?.xpReward} XP</span></>
+              }
+            </p>
             <p className="text-sm text-muted-foreground mb-6">All test cases passed successfully!</p>
             <div className="flex gap-3 justify-center">
               <Button variant="outline" onClick={() => setShowSuccess(false)}>Stay Here</Button>

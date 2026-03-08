@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { code, language, problemDescription, sampleCases, mode } = await req.json();
+    const { code, language, problemDescription, sampleCases, mode, constraints } = await req.json();
 
     if (!code || !language) {
       return new Response(JSON.stringify({ error: 'Code and language are required' }), {
@@ -78,8 +78,22 @@ Respond in this exact JSON format only, no other text:
 }
 
 Be strict but fair. If the code logic is correct for all test cases, give Accepted. If it has bugs, give Wrong Answer. If it would exceed typical time limits (2 seconds), give TLE. If it has syntax errors, give Compilation Error.`;
+    } else if (mode === 'solution') {
+      // constraints already destructured from req.json() above
+      prompt = `You are an expert competitive programmer. Provide a clean, optimal, well-commented solution in ${language} for the following problem.
+
+PROBLEM:
+${problemDescription}
+
+CONSTRAINTS:
+${JSON.stringify(constraints || [], null, 2)}
+
+SAMPLE TEST CASES:
+${JSON.stringify(sampleCases, null, 2)}
+
+Provide ONLY the complete solution code, no explanation outside the code. Add comments within the code explaining the approach and key steps. The code must handle all edge cases and be efficient.`;
     } else {
-      return new Response(JSON.stringify({ error: 'Invalid mode. Use "run" or "submit".' }), {
+      return new Response(JSON.stringify({ error: 'Invalid mode. Use "run", "submit", or "solution".' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
@@ -109,7 +123,27 @@ Be strict but fair. If the code logic is correct for all test cases, give Accept
     const data = await response.json();
     const textContent = data.choices?.[0]?.message?.content || '';
 
-    // Extract JSON from the response
+    // For solution mode, return the raw text as solution code
+    if (mode === 'solution') {
+      // Strip markdown code fences if present
+      let solution = textContent.replace(/^```[\w]*\n?/, '').replace(/\n?```$/, '').trim();
+      
+      // Track usage
+      try {
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+        const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        const sb = createClient(supabaseUrl, serviceRoleKey);
+        const { data: countRow } = await sb.from('admin_settings').select('value').eq('key', 'gemini_usage_count').single();
+        const current = parseInt(countRow?.value || '0');
+        await sb.from('admin_settings').update({ value: String(current + 1) }).eq('key', 'gemini_usage_count');
+      } catch (e) { console.error('Usage tracking error:', e); }
+
+      return new Response(JSON.stringify({ solution }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Extract JSON from the response for run/submit modes
     let result;
     try {
       const jsonMatch = textContent.match(/\{[\s\S]*\}/);
