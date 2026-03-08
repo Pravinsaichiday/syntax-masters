@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
+import { PROBLEMS } from "@/data/mockData";
 import { motion } from "framer-motion";
 import { Target, Zap, Flame, TrendingUp, Calendar, Award, Pencil, Check, X } from "lucide-react";
 import { useMemo, useState } from "react";
