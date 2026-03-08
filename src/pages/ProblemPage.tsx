@@ -227,8 +227,41 @@ export default function ProblemPage() {
               {running ? "Processing..." : output || "Run or submit your code to see output here."}
             </pre>
           </div>
+
+          {/* Next Problem Button on Accepted */}
+          <AnimatePresence>
+            {verdict === "Accepted" && nextProblem && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="border-t border-border px-4 py-3">
+                <Button onClick={() => navigate(`/problem/${nextProblem.id}`)} className="w-full bg-gradient-gold font-semibold">
+                  Next Problem: {nextProblem.title} <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
+
+      {/* Success Dialog */}
+      <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
+        <DialogContent className="sm:max-w-md text-center">
+          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", duration: 0.5 }}>
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
+              <Trophy className="h-8 w-8 text-success" />
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Problem Solved! 🎉</h2>
+            <p className="text-muted-foreground mb-1">You earned <span className="font-bold text-primary">+{problem?.xpReward} XP</span></p>
+            <p className="text-sm text-muted-foreground mb-6">All test cases passed successfully!</p>
+            <div className="flex gap-3 justify-center">
+              <Button variant="outline" onClick={() => setShowSuccess(false)}>Stay Here</Button>
+              {nextProblem && (
+                <Button onClick={() => { setShowSuccess(false); navigate(`/problem/${nextProblem.id}`); }} className="bg-gradient-gold font-semibold">
+                  Next Problem <ArrowRight className="ml-1 h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </motion.div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
