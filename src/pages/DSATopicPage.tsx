@@ -69,9 +69,17 @@ export default function DSATopicPage() {
   }
 
   const allProblems = topic.subtopics.flatMap(s => s.problems);
+  // Get matching problems from main database
+  const dbTopicTags = DSA_TOPIC_TO_DB_TOPICS[topicId || ""] || [];
+  const dbProblems = ALL_PROBLEMS.filter(p => p.topics.some(t => dbTopicTags.includes(t)));
+  // Exclude problems already in DSA subtopics
+  const dsaProblemIds = new Set(allProblems.map(p => p.id));
+  const extraProblems = dbProblems.filter(p => !dsaProblemIds.has(p.id));
+  
+  const totalCount = allProblems.length + extraProblems.length;
   const isCompleted = (pid: string) => progress.some((p: any) => p.problem_id === pid && p.completed);
   const completedCount = allProblems.filter(p => isCompleted(p.id)).length;
-  const progressPercent = allProblems.length > 0 ? Math.round((completedCount / allProblems.length) * 100) : 0;
+  const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   const handleSelectProblem = (p: DSAProblem) => {
     setSelectedProblem(p);
