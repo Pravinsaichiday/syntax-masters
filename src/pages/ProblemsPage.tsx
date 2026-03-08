@@ -4,7 +4,7 @@ import { LEARNING_TRACKS } from "@/data/learningTracks";
 import { useState, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Search, BookOpen, Lock, Unlock, ArrowRight } from "lucide-react";
+import { Search, BookOpen, Lock, Unlock, ArrowRight, ArrowUpDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -19,11 +19,16 @@ const DIFF_COLORS: Record<Difficulty, string> = {
   "Advanced": "bg-destructive/10 text-destructive",
 };
 
+const DIFF_ORDER: Record<string, number> = { "Very Easy": 0, Easy: 1, Basic: 2, Intermediate: 3, Advanced: 4 };
+
+type SortKey = "none" | "difficulty-asc" | "difficulty-desc" | "acceptance-asc" | "acceptance-desc" | "xp-asc" | "xp-desc";
+
 export default function ProblemsPage() {
   const [searchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [difficulty, setDifficulty] = useState<string>(searchParams.get("difficulty") || "All");
   const [topic, setTopic] = useState<string>(searchParams.get("topic") || "All");
+  const [sortBy, setSortBy] = useState<SortKey>("none");
 
   const { data: settings } = useQuery({
     queryKey: ["admin-settings"],
@@ -35,14 +40,39 @@ export default function ProblemsPage() {
 
   const pythonLocked = settings?.find((s: any) => s.key === "python_locked")?.value === "true";
 
+  const toggleSort = (key: "difficulty" | "acceptance" | "xp") => {
+    if (sortBy === `${key}-asc`) setSortBy(`${key}-desc`);
+    else if (sortBy === `${key}-desc`) setSortBy("none");
+    else setSortBy(`${key}-asc`);
+  };
+
   const filtered = useMemo(() => {
-    return ALL_PROBLEMS.filter((p) => {
+    let result = ALL_PROBLEMS.filter((p) => {
       if (search && !p.title.toLowerCase().includes(search.toLowerCase())) return false;
       if (difficulty !== "All" && p.difficulty !== difficulty) return false;
       if (topic !== "All" && !p.topics.includes(topic)) return false;
       return true;
     });
-  }, [search, difficulty, topic]);
+
+    if (sortBy.startsWith("difficulty")) {
+      const dir = sortBy.endsWith("asc") ? 1 : -1;
+      result = [...result].sort((a, b) => dir * ((DIFF_ORDER[a.difficulty] || 0) - (DIFF_ORDER[b.difficulty] || 0)));
+    } else if (sortBy.startsWith("acceptance")) {
+      const dir = sortBy.endsWith("asc") ? 1 : -1;
+      result = [...result].sort((a, b) => dir * ((a.acceptance || 0) - (b.acceptance || 0)));
+    } else if (sortBy.startsWith("xp")) {
+      const dir = sortBy.endsWith("asc") ? 1 : -1;
+      result = [...result].sort((a, b) => dir * (a.xpReward - b.xpReward));
+    }
+
+    return result;
+  }, [search, difficulty, topic, sortBy]);
+
+  const getSortIcon = (key: string) => {
+    if (sortBy === `${key}-asc`) return "↑";
+    if (sortBy === `${key}-desc`) return "↓";
+    return "";
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -82,12 +112,7 @@ export default function ProblemsPage() {
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search problems..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="bg-surface-2 border-border pl-10"
-            />
+            <Input placeholder="Search problems..." value={search} onChange={(e) => setSearch(e.target.value)} className="bg-surface-2 border-border pl-10" />
           </div>
           <div className="flex gap-2 overflow-x-auto">
             {DIFFICULTIES.map((d) => (
@@ -95,9 +120,7 @@ export default function ProblemsPage() {
                 key={d}
                 onClick={() => setDifficulty(d)}
                 className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                  difficulty === d
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-surface-2 text-muted-foreground hover:text-foreground"
+                  difficulty === d ? "bg-primary text-primary-foreground" : "bg-surface-2 text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {d}
@@ -133,9 +156,15 @@ export default function ProblemsPage() {
         <div className="rounded-xl border border-border bg-card">
           <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 border-b border-border px-5 py-3 text-xs font-medium text-muted-foreground">
             <span>Title</span>
-            <span className="text-right">Difficulty</span>
-            <span className="text-right hidden sm:block">Acceptance</span>
-            <span className="text-right">XP</span>
+            <button onClick={() => toggleSort("difficulty")} className="text-right flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer">
+              Difficulty {getSortIcon("difficulty")} <ArrowUpDown className="h-3 w-3" />
+            </button>
+            <button onClick={() => toggleSort("acceptance")} className="text-right hidden sm:flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer">
+              Acceptance {getSortIcon("acceptance")} <ArrowUpDown className="h-3 w-3" />
+            </button>
+            <button onClick={() => toggleSort("xp")} className="text-right flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer">
+              XP {getSortIcon("xp")} <ArrowUpDown className="h-3 w-3" />
+            </button>
           </div>
           {filtered.length === 0 ? (
             <div className="px-5 py-12 text-center text-muted-foreground">No problems found.</div>
