@@ -314,8 +314,15 @@ export default function PythonTopicPage() {
                       options={{ fontSize: 14, fontFamily: '"JetBrains Mono", monospace', minimap: { enabled: false }, padding: { top: 16 }, scrollBeyondLastLine: false, tabSize: 4, automaticLayout: true }}
                     />
                   </div>
-                  <div className="border-t border-border">
-                    <div className="px-4 py-2 border-b border-border text-sm font-medium">Output</div>
+                   <div className="border-t border-border">
+                    <div className="flex items-center justify-between px-4 py-2 border-b border-border">
+                      <span className="text-sm font-medium">Output</span>
+                      {selectedQuestion && isCompleted(selectedQuestion.id) && (
+                        <Button size="sm" onClick={handleGoToNext} className="bg-gradient-gold font-semibold">
+                          {getNextQuestion() ? "Next Question" : "Next Topic"} <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </div>
                     <pre className="h-28 overflow-y-auto p-4 font-mono text-xs text-muted-foreground">
                       {running ? "Processing..." : output || "Run your code to see output here."}
                     </pre>
@@ -326,6 +333,26 @@ export default function PythonTopicPage() {
           </motion.div>
         )}
       </div>
+
+      {/* Success Dialog */}
+      <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
+        <DialogContent className="text-center sm:max-w-md border-border bg-card">
+          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="flex flex-col items-center gap-4 py-4">
+            <div className="rounded-full bg-primary/10 p-4">
+              <Trophy className="h-10 w-10 text-primary" />
+            </div>
+            <h2 className="text-xl font-bold">Problem Solved! 🎉</h2>
+            {earnedXp > 0 && <p className="text-muted-foreground">You earned <span className="font-bold text-primary">+{earnedXp} XP</span></p>}
+            {earnedXp === 0 && <p className="text-muted-foreground">Already completed — no extra XP</p>}
+            <div className="flex gap-3 mt-2">
+              <Button variant="outline" onClick={() => setShowSuccess(false)}>Stay Here</Button>
+              <Button onClick={handleGoToNext} className="bg-gradient-gold font-semibold">
+                {getNextQuestion() ? "Next Question" : "Next Topic"} <ArrowRight className="ml-1 h-4 w-4" />
+              </Button>
+            </div>
+          </motion.div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
