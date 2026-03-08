@@ -5,15 +5,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 
 export default function WelcomePage() {
-  const { user, isAuthenticated } = useAuth();
+  const { profile, isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
   const [show, setShow] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!loading && !isAuthenticated) {
       navigate("/login");
       return;
     }
+    if (loading) return;
 
     // Fire confetti
     const duration = 2000;
@@ -40,7 +41,7 @@ export default function WelcomePage() {
     const timer = setTimeout(() => {
       setShow(false);
       setTimeout(() => {
-        if (user?.onboarded) {
+        if (profile?.onboarded) {
           navigate("/dashboard");
         } else {
           navigate("/onboarding");
@@ -49,7 +50,7 @@ export default function WelcomePage() {
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [isAuthenticated, navigate, user]);
+  }, [isAuthenticated, loading, navigate, profile]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
@@ -68,7 +69,7 @@ export default function WelcomePage() {
               transition={{ delay: 0.2, duration: 0.5 }}
               className="text-4xl font-bold md:text-6xl"
             >
-              Welcome, <span className="text-gradient-gold">{user?.name || "Coder"}</span>
+              Welcome, <span className="text-gradient-gold">{profile?.name || "Coder"}</span>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0 }}
