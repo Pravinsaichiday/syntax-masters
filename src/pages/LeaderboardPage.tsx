@@ -17,11 +17,12 @@ export default function LeaderboardPage() {
       const { data } = await supabase
         .from("profiles")
         .select("*")
+        .gt("solved_count", 0)
         .order("xp", { ascending: false })
         .limit(100);
       return (data || []).map((u, i) => ({
         rank: i + 1,
-        username: u.username || u.user_id,
+        username: u.username || "user_" + u.user_id.slice(0, 6),
         name: u.name,
         xp: u.xp,
         solved: u.solved_count,
@@ -29,6 +30,7 @@ export default function LeaderboardPage() {
         user_id: u.user_id,
       }));
     },
+    refetchInterval: 30000, // real-time every 30s
   });
 
   const filtered = users.filter(
@@ -75,7 +77,7 @@ export default function LeaderboardPage() {
               const heights = ["h-32", "h-40", "h-28"];
               return (
                 <motion.div
-                  key={user.username}
+                  key={user.user_id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.15 }}
@@ -107,11 +109,11 @@ export default function LeaderboardPage() {
             <span className="text-right hidden sm:block">Streak</span>
           </div>
           {filtered.length === 0 ? (
-            <div className="px-5 py-12 text-center text-muted-foreground">No users found.</div>
+            <div className="px-5 py-12 text-center text-muted-foreground">No users found. Solve problems to appear here!</div>
           ) : (
             filtered.map((u, i) => (
               <motion.div
-                key={u.username}
+                key={u.user_id}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: i * 0.03 }}
