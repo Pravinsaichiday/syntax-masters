@@ -1,14 +1,16 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { PROBLEMS } from "@/data/mockData";
 import Navbar from "@/components/Navbar";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
-import { Play, Send, Lightbulb } from "lucide-react";
+import { Play, Send, Lightbulb, ArrowRight, Trophy } from "lucide-react";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import confetti from "canvas-confetti";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 const LANG_MAP: Record<string, { template: string }> = {
   "C++": { template: '#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    // Your code here\n    return 0;\n}' },
@@ -28,8 +30,11 @@ type Verdict = "Accepted" | "Wrong Answer" | "Time Limit Exceeded" | "Compilatio
 
 export default function ProblemPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user, updateProfile, profile } = useAuth();
   const problem = PROBLEMS.find((p) => p.id === id);
+  const currentIndex = PROBLEMS.findIndex((p) => p.id === id);
+  const nextProblem = currentIndex >= 0 && currentIndex < PROBLEMS.length - 1 ? PROBLEMS[currentIndex + 1] : null;
 
   const [language, setLanguage] = useState("C++");
   const [code, setCode] = useState(LANG_MAP["C++"].template);
@@ -37,6 +42,19 @@ export default function ProblemPage() {
   const [verdict, setVerdict] = useState<Verdict>(null);
   const [running, setRunning] = useState(false);
   const [showHints, setShowHints] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const fireConfetti = useCallback(() => {
+    const duration = 3000;
+    const end = Date.now() + duration;
+    const colors = ["#FFD700", "#FFA500", "#FF6347", "#00CED1", "#7B68EE", "#32CD32"];
+    const frame = () => {
+      confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors });
+      confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    };
+    frame();
+  }, []);
 
   if (!problem) {
     return <div className="min-h-screen bg-background"><Navbar /><div className="flex items-center justify-center py-20 text-muted-foreground">Problem not found.</div></div>;
@@ -78,7 +96,8 @@ export default function ProblemPage() {
 
         if (v === "Accepted") {
           toast.success(`Accepted! +${problem.xpReward} XP`);
-          // Save submission & update profile
+          fireConfetti();
+          setShowSuccess(true);
           if (user) {
             await supabase.from("submissions").insert({
               user_id: user.id,
@@ -208,8 +227,41 @@ export default function ProblemPage() {
               {running ? "Processing..." : output || "Run or submit your code to see output here."}
             </pre>
           </div>
+
+          {/* Next Problem Button on Accepted */}
+          <AnimatePresence>
+            {verdict === "Accepted" && nextProblem && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="border-t border-border px-4 py-3">
+                <Button onClick={() => navigate(`/problem/${nextProblem.id}`)} className="w-full bg-gradient-gold font-semibold">
+                  Next Problem: {nextProblem.title} <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
+
+      {/* Success Dialog */}
+      <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
+        <DialogContent className="sm:max-w-md text-center">
+          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", duration: 0.5 }}>
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
+              <Trophy className="h-8 w-8 text-success" />
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Problem Solved! 🎉</h2>
+            <p className="text-muted-foreground mb-1">You earned <span className="font-bold text-primary">+{problem?.xpReward} XP</span></p>
+            <p className="text-sm text-muted-foreground mb-6">All test cases passed successfully!</p>
+            <div className="flex gap-3 justify-center">
+              <Button variant="outline" onClick={() => setShowSuccess(false)}>Stay Here</Button>
+              {nextProblem && (
+                <Button onClick={() => { setShowSuccess(false); navigate(`/problem/${nextProblem.id}`); }} className="bg-gradient-gold font-semibold">
+                  Next Problem <ArrowRight className="ml-1 h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </motion.div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
