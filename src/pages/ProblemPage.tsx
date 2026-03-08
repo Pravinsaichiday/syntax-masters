@@ -432,7 +432,7 @@ export default function ProblemPage() {
                 <TestTube className="h-3.5 w-3.5" /> Custom Test
               </button>
               {verdict && activeTab === "output" && (
-                <span className={`rounded-md px-2 py-0.5 text-xs font-bold ${verdict === "Accepted" ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`}>{verdict}</span>
+                <span className={`rounded-md px-2.5 py-1 text-sm font-bold ${verdict === "Accepted" ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`}>{verdict}</span>
               )}
             </div>
 
