@@ -275,7 +275,26 @@ export default function ProfilePage() {
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex items-center gap-6">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-primary bg-surface-2 text-3xl font-bold text-primary">{profileData.name.charAt(0)}</div>
+          <div className="relative group">
+            <Avatar className="h-20 w-20 border-2 border-primary">
+              {(isOwnProfile ? currentProfile?.avatar_url : dbProfile?.avatar_url) ? (
+                <AvatarImage src={isOwnProfile ? currentProfile!.avatar_url! : dbProfile!.avatar_url!} alt={profileData.name} />
+              ) : null}
+              <AvatarFallback className="bg-surface-2 text-3xl font-bold text-primary">{profileData.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            {isOwnProfile && (
+              <>
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="absolute inset-0 flex items-center justify-center rounded-full bg-background/60 opacity-0 transition-opacity group-hover:opacity-100"
+                >
+                  <Camera className="h-6 w-6 text-foreground" />
+                </button>
+              </>
+            )}
+          </div>
           <div>
             <h1 className="text-2xl font-bold">{profileData.name}</h1>
             <div className="flex items-center gap-2">
