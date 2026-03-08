@@ -90,7 +90,9 @@ export default function PythonTopicPage() {
 
   const handleSelectQuestion = (q: PythonQuestion) => {
     setSelectedQuestion(q);
-    setCode(q.starterCode);
+    // Load saved code if previously solved
+    const saved = progress.find((p: any) => p.question_id === q.id && p.completed && p.code);
+    setCode(saved ? saved.code : q.starterCode);
     setOutput("");
     setShowHints(false);
     setActiveTab("practice");
