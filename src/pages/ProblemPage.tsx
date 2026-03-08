@@ -270,7 +270,7 @@ export default function ProblemPage() {
             <span className="text-xs text-primary">+{problem.xpReward} XP</span>
             {alreadySolved && <span className="rounded-md bg-success/10 px-2 py-0.5 text-xs font-bold text-success">✓ Solved</span>}
           </div>
-          <h1 className="mb-4 text-xl font-bold">{problem.title}</h1>
+          <h1 className="mb-4 text-2xl font-bold">{problem.title}</h1>
           <div className="mb-4 flex gap-2 flex-wrap">{problem.topics.map((t) => <span key={t} className="rounded bg-surface-3 px-2 py-0.5 text-xs text-muted-foreground">{t}</span>)}</div>
 
           <div className="prose prose-sm prose-invert max-w-none">
