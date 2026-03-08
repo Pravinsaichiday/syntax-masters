@@ -1,9 +1,10 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
 import { PROBLEMS } from "@/data/mockData";
+import { PYTHON_TOPICS } from "@/data/pythonTopics";
 import { motion } from "framer-motion";
-import { Target, Zap, Flame, TrendingUp, Calendar, Award, Pencil, Check, X } from "lucide-react";
+import { Target, Zap, Flame, TrendingUp, Calendar, Award, Pencil, Check, X, CheckCircle2, ExternalLink, BookOpen } from "lucide-react";
 import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
