@@ -74,7 +74,7 @@ export const LEARNING_TRACKS: LearningTrack[] = [
     color: "from-gray-500/10 to-gray-600/5",
     totalProblems: 40,
     topics: ["Variables", "Pointers", "Arrays", "Structs", "Memory"],
-    route: "/problems?difficulty=Very+Easy",
+    route: "/learn/learn-c",
     difficulty: "Beginner → Intermediate",
   },
   {
