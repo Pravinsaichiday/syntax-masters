@@ -41,7 +41,7 @@ export const LEARNING_TRACKS: LearningTrack[] = [
     color: "from-purple-500/10 to-purple-600/5",
     totalProblems: 80,
     topics: ["Sorting", "Searching", "Greedy", "Backtracking", "DP"],
-    route: "/problems?topic=Sorting",
+    route: "/learn/algorithm-mastery",
     difficulty: "Basic → Advanced",
   },
   {
