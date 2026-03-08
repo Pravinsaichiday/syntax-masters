@@ -1,12 +1,14 @@
 import { useParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
-import { LEADERBOARD_USERS } from "@/data/mockData";
 import { motion } from "framer-motion";
-import { Target, Zap, Flame, TrendingUp, Calendar, Award } from "lucide-react";
-import { useMemo } from "react";
+import { Target, Zap, Flame, TrendingUp, Calendar, Award, Pencil, Check, X } from "lucide-react";
+import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 function generateHeatmap() {
   const days = [];
@@ -20,14 +22,14 @@ function generateHeatmap() {
 
 export default function ProfilePage() {
   const { username } = useParams();
-  const { profile: currentProfile } = useAuth();
+  const { profile: currentProfile, updateProfile } = useAuth();
   const heatmap = useMemo(() => generateHeatmap(), []);
+  const [editingUsername, setEditingUsername] = useState(false);
+  const [newUsername, setNewUsername] = useState("");
 
-  // Try to load profile from DB by username or user_id
   const { data: dbProfile } = useQuery({
     queryKey: ["profile", username],
     queryFn: async () => {
-      // Try username first, then user_id
       let { data } = await supabase.from("profiles").select("*").eq("username", username!).single();
       if (!data) {
         const res = await supabase.from("profiles").select("*").eq("user_id", username!).single();
@@ -38,7 +40,6 @@ export default function ProfilePage() {
     enabled: !!username,
   });
 
-  const leaderboardUser = LEADERBOARD_USERS.find((u) => u.username === username);
   const isOwnProfile = currentProfile && (username === currentProfile.username || username === currentProfile.user_id);
 
   const profileData = isOwnProfile && currentProfile
@@ -52,6 +53,7 @@ export default function ProfilePage() {
         language: currentProfile.language || "Not set",
         level: currentProfile.level || "Not set",
         joinedAt: currentProfile.created_at || new Date().toISOString(),
+        hasUsername: !!currentProfile.username,
       }
     : dbProfile
     ? {
@@ -64,18 +66,7 @@ export default function ProfilePage() {
         language: dbProfile.language || "Not set",
         level: dbProfile.level || "Not set",
         joinedAt: dbProfile.created_at,
-      }
-    : leaderboardUser
-    ? {
-        name: leaderboardUser.name,
-        username: leaderboardUser.username,
-        xp: leaderboardUser.xp,
-        rank: leaderboardUser.rank,
-        streak: leaderboardUser.streak,
-        solved: leaderboardUser.solved,
-        language: "C++",
-        level: "Advanced",
-        joinedAt: "2024-01-15",
+        hasUsername: !!dbProfile.username,
       }
     : null;
 
@@ -84,6 +75,29 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-background"><Navbar /><div className="flex items-center justify-center py-20 text-muted-foreground">User not found.</div></div>
     );
   }
+
+  const canEditUsername = isOwnProfile && !currentProfile?.username;
+
+  const handleSaveUsername = async () => {
+    const trimmed = newUsername.trim();
+    if (!trimmed || trimmed.length < 3) {
+      toast.error("Username must be at least 3 characters");
+      return;
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(trimmed)) {
+      toast.error("Username can only contain letters, numbers, and underscores");
+      return;
+    }
+    // Check uniqueness
+    const { data: existing } = await supabase.from("profiles").select("id").eq("username", trimmed).single();
+    if (existing) {
+      toast.error("Username already taken");
+      return;
+    }
+    await updateProfile({ username: trimmed });
+    setEditingUsername(false);
+    toast.success("Username set! This cannot be changed again.");
+  };
 
   const stats = [
     { icon: Target, label: "Problems Solved", value: profileData.solved },
@@ -102,7 +116,34 @@ export default function ProfilePage() {
           <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-primary bg-surface-2 text-3xl font-bold text-primary">{profileData.name.charAt(0)}</div>
           <div>
             <h1 className="text-2xl font-bold">{profileData.name}</h1>
-            <p className="text-muted-foreground">@{profileData.username}</p>
+            <div className="flex items-center gap-2">
+              {editingUsername ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={newUsername}
+                    onChange={(e) => setNewUsername(e.target.value)}
+                    placeholder="Choose username"
+                    className="h-8 w-48 bg-surface-2 text-sm"
+                    maxLength={20}
+                  />
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={handleSaveUsername}>
+                    <Check className="h-4 w-4 text-success" />
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setEditingUsername(false)}>
+                    <X className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <p className="text-muted-foreground">@{profileData.username}</p>
+                  {canEditUsername && (
+                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setNewUsername(""); setEditingUsername(true); }}>
+                      <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                    </Button>
+                  )}
+                </>
+              )}
+            </div>
             <div className="mt-1 flex gap-3 text-sm text-muted-foreground">
               <span>{profileData.language}</span><span>·</span><span>{profileData.level}</span><span>·</span>
               <span>Joined {new Date(profileData.joinedAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</span>

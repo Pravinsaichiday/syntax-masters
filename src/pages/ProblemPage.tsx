@@ -205,7 +205,7 @@ export default function ProblemPage() {
               )}
             </div>
             <pre className="h-32 overflow-y-auto p-4 font-mono text-xs text-muted-foreground">
-              {running ? "Processing with Gemini AI..." : output || "Run or submit your code to see output here."}
+              {running ? "Processing..." : output || "Run or submit your code to see output here."}
             </pre>
           </div>
         </div>

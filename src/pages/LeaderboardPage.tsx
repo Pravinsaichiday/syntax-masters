@@ -1,16 +1,37 @@
 import Navbar from "@/components/Navbar";
-import { LEADERBOARD_USERS } from "@/data/mockData";
 import { motion } from "framer-motion";
-import { Trophy, Medal, Flame, Search } from "lucide-react";
+import { Trophy, Flame, Search } from "lucide-react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 export default function LeaderboardPage() {
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<"all" | "weekly" | "daily">("all");
 
-  const filtered = LEADERBOARD_USERS.filter(
+  const { data: users = [] } = useQuery({
+    queryKey: ["leaderboard"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .order("xp", { ascending: false })
+        .limit(100);
+      return (data || []).map((u, i) => ({
+        rank: i + 1,
+        username: u.username || u.user_id,
+        name: u.name,
+        xp: u.xp,
+        solved: u.solved_count,
+        streak: u.streak,
+        user_id: u.user_id,
+      }));
+    },
+  });
+
+  const filtered = users.filter(
     (u) =>
       u.username.toLowerCase().includes(search.toLowerCase()) ||
       u.name.toLowerCase().includes(search.toLowerCase())
@@ -46,35 +67,35 @@ export default function LeaderboardPage() {
         </div>
 
         {/* Top 3 Podium */}
-        <div className="mb-8 grid grid-cols-3 gap-4">
-          {filtered.slice(0, 3).map((u, i) => {
-            const order = [1, 0, 2];
-            const user = filtered[order[i]];
-            if (!user) return null;
-            const heights = ["h-32", "h-40", "h-28"];
-            const colors = ["text-primary", "text-primary", "text-primary"];
-            return (
-              <motion.div
-                key={user.username}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.15 }}
-                className="flex flex-col items-center"
-              >
-                <div className="mb-2 text-center">
-                  <div className="mb-1 flex h-12 w-12 items-center justify-center rounded-full border-2 border-primary bg-surface-2 text-lg font-bold text-primary mx-auto">
-                    {user.name.charAt(0)}
+        {filtered.length >= 3 && (
+          <div className="mb-8 grid grid-cols-3 gap-4">
+            {[1, 0, 2].map((order, i) => {
+              const user = filtered[order];
+              if (!user) return null;
+              const heights = ["h-32", "h-40", "h-28"];
+              return (
+                <motion.div
+                  key={user.username}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.15 }}
+                  className="flex flex-col items-center"
+                >
+                  <div className="mb-2 text-center">
+                    <div className="mb-1 flex h-12 w-12 items-center justify-center rounded-full border-2 border-primary bg-surface-2 text-lg font-bold text-primary mx-auto">
+                      {user.name.charAt(0)}
+                    </div>
+                    <Link to={`/profile/${user.username}`} className="text-sm font-semibold hover:text-primary transition-colors">{user.username}</Link>
+                    <div className="text-xs text-muted-foreground">{user.xp.toLocaleString()} XP</div>
                   </div>
-                  <Link to={`/profile/${user.username}`} className="text-sm font-semibold hover:text-primary transition-colors">{user.username}</Link>
-                  <div className="text-xs text-muted-foreground">{user.xp.toLocaleString()} XP</div>
-                </div>
-                <div className={`w-full rounded-t-lg bg-gradient-to-t from-primary/20 to-primary/5 border border-border border-b-0 flex items-end justify-center pb-2 ${heights[i]}`}>
-                  <span className="text-2xl font-bold text-primary">#{user.rank}</span>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
+                  <div className={`w-full rounded-t-lg bg-gradient-to-t from-primary/20 to-primary/5 border border-border border-b-0 flex items-end justify-center pb-2 ${heights[i]}`}>
+                    <span className="text-2xl font-bold text-primary">#{user.rank}</span>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Table */}
         <div className="rounded-xl border border-border bg-card overflow-hidden">
@@ -85,33 +106,37 @@ export default function LeaderboardPage() {
             <span className="text-right hidden sm:block">Solved</span>
             <span className="text-right hidden sm:block">Streak</span>
           </div>
-          {filtered.map((u, i) => (
-            <motion.div
-              key={u.username}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: i * 0.03 }}
-            >
-              <Link
-                to={`/profile/${u.username}`}
-                className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-4 border-b border-border px-5 py-3.5 transition-colors last:border-0 hover:bg-surface-2"
+          {filtered.length === 0 ? (
+            <div className="px-5 py-12 text-center text-muted-foreground">No users found.</div>
+          ) : (
+            filtered.map((u, i) => (
+              <motion.div
+                key={u.username}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: i * 0.03 }}
               >
-                <span className={`w-8 text-center font-bold ${u.rank <= 3 ? "text-primary" : "text-muted-foreground"}`}>
-                  {u.rank}
-                </span>
-                <div>
-                  <div className="font-medium">{u.username}</div>
-                  <div className="text-xs text-muted-foreground">{u.name}</div>
-                </div>
-                <span className="text-sm font-semibold text-primary">{u.xp.toLocaleString()}</span>
-                <span className="text-sm text-muted-foreground hidden sm:block">{u.solved}</span>
-                <span className="text-sm text-muted-foreground hidden sm:flex items-center gap-1">
-                  <Flame className="h-3 w-3 text-destructive" />
-                  {u.streak}
-                </span>
-              </Link>
-            </motion.div>
-          ))}
+                <Link
+                  to={`/profile/${u.username}`}
+                  className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-4 border-b border-border px-5 py-3.5 transition-colors last:border-0 hover:bg-surface-2"
+                >
+                  <span className={`w-8 text-center font-bold ${u.rank <= 3 ? "text-primary" : "text-muted-foreground"}`}>
+                    {u.rank}
+                  </span>
+                  <div>
+                    <div className="font-medium">{u.username}</div>
+                    <div className="text-xs text-muted-foreground">{u.name}</div>
+                  </div>
+                  <span className="text-sm font-semibold text-primary">{u.xp.toLocaleString()}</span>
+                  <span className="text-sm text-muted-foreground hidden sm:block">{u.solved}</span>
+                  <span className="text-sm text-muted-foreground hidden sm:flex items-center gap-1">
+                    <Flame className="h-3 w-3 text-destructive" />
+                    {u.streak}
+                  </span>
+                </Link>
+              </motion.div>
+            ))
+          )}
         </div>
       </div>
     </div>
