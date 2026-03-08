@@ -14,8 +14,13 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signup } = useAuth();
+  const { signup, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  if (isAuthenticated) {
+    navigate("/dashboard");
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,11 +33,13 @@ export default function SignupPage() {
       return;
     }
     setLoading(true);
-    const ok = await signup(name, email, password);
+    const result = await signup(name, email, password);
     setLoading(false);
-    if (ok) {
+    if (result.ok) {
       toast.success("Account created! You can now log in.");
       navigate("/login");
+    } else {
+      toast.error(result.error || "Signup failed");
     }
   };
 

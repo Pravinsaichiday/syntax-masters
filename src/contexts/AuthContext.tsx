@@ -1,110 +1,131 @@
-import { createContext, useContext, useState, ReactNode, useCallback } from "react";
+import { createContext, useContext, useState, ReactNode, useCallback, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 
-export type User = {
+export type Profile = {
   id: string;
+  user_id: string;
   name: string;
-  email: string;
-  username?: string;
-  avatar?: string;
-  language?: string;
-  level?: string;
-  dailyTime?: string;
-  onboarded?: boolean;
+  username: string | null;
+  avatar_url: string | null;
+  language: string | null;
+  level: string | null;
+  daily_time: string | null;
+  onboarded: boolean;
   xp: number;
   rank: number;
   streak: number;
-  solvedCount: number;
-  joinedAt: string;
+  solved_count: number;
 };
 
 type AuthContextType = {
-  user: User | null;
+  user: SupabaseUser | null;
+  profile: Profile | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  signup: (name: string, email: string, password: string) => Promise<boolean>;
-  logout: () => void;
-  updateUser: (data: Partial<User>) => void;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  signup: (name: string, email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  logout: () => Promise<void>;
+  updateProfile: (data: Partial<Profile>) => Promise<void>;
+  refreshProfile: () => Promise<void>;
   isNewLogin: boolean;
   setIsNewLogin: (v: boolean) => void;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const MOCK_USERS: Record<string, { password: string; user: User }> = {};
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    const stored = localStorage.getItem("codeforge_user");
-    return stored ? JSON.parse(stored) : null;
-  });
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
   const [isNewLogin, setIsNewLogin] = useState(false);
 
-  const signup = useCallback(async (name: string, email: string, password: string) => {
-    const id = crypto.randomUUID();
-    const newUser: User = {
-      id,
-      name,
-      email,
-      xp: 0,
-      rank: 0,
-      streak: 0,
-      solvedCount: 0,
-      joinedAt: new Date().toISOString(),
-      onboarded: false,
-    };
-    MOCK_USERS[email] = { password, user: newUser };
-    return true;
+  const fetchProfile = useCallback(async (userId: string) => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("user_id", userId)
+      .single();
+    if (data) setProfile(data as Profile);
+    return data as Profile | null;
   }, []);
 
-  const login = useCallback(async (email: string, _password: string) => {
-    const entry = MOCK_USERS[email];
-    if (!entry) {
-      // Demo: create a demo user on first login attempt
-      const demoUser: User = {
-        id: crypto.randomUUID(),
-        name: email.split("@")[0],
-        email,
-        xp: 1250,
-        rank: 342,
-        streak: 7,
-        solvedCount: 47,
-        joinedAt: new Date().toISOString(),
-        onboarded: false,
-      };
-      setUser(demoUser);
-      localStorage.setItem("codeforge_user", JSON.stringify(demoUser));
-      setIsNewLogin(true);
-      return true;
-    }
-    setUser(entry.user);
-    localStorage.setItem("codeforge_user", JSON.stringify(entry.user));
-    setIsNewLogin(!entry.user.onboarded);
-    return true;
-  }, []);
+  const refreshProfile = useCallback(async () => {
+    if (user) await fetchProfile(user.id);
+  }, [user, fetchProfile]);
 
-  const logout = useCallback(() => {
-    setUser(null);
-    localStorage.removeItem("codeforge_user");
-  }, []);
-
-  const updateUser = useCallback((data: Partial<User>) => {
-    setUser((prev) => {
-      if (!prev) return prev;
-      const updated = { ...prev, ...data };
-      localStorage.setItem("codeforge_user", JSON.stringify(updated));
-      return updated;
+  useEffect(() => {
+    // Set up auth listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+        // Use setTimeout to avoid deadlock with Supabase client
+        setTimeout(() => fetchProfile(session.user.id), 0);
+      } else {
+        setUser(null);
+        setProfile(null);
+      }
+      setLoading(false);
     });
+
+    // Then check existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser(session.user);
+        fetchProfile(session.user.id);
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [fetchProfile]);
+
+  const signup = useCallback(async (name: string, email: string, password: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { name } },
+    });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
   }, []);
+
+  const login = useCallback(async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return { ok: false, error: error.message };
+    setIsNewLogin(true);
+    return { ok: true };
+  }, []);
+
+  const logout = useCallback(async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setProfile(null);
+  }, []);
+
+  const updateProfile = useCallback(async (data: Partial<Profile>) => {
+    if (!user) return;
+    const { error } = await supabase
+      .from("profiles")
+      .update(data)
+      .eq("user_id", user.id);
+    if (!error) {
+      setProfile((prev) => prev ? { ...prev, ...data } : prev);
+    }
+  }, [user]);
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        profile,
         isAuthenticated: !!user,
+        loading,
         login,
         signup,
         logout,
-        updateUser,
+        updateProfile,
+        refreshProfile,
         isNewLogin,
         setIsNewLogin,
       }}
