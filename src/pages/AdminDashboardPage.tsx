@@ -19,6 +19,7 @@ export default function AdminDashboardPage() {
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [pythonLocked, setPythonLocked] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [maintenanceMessage, setMaintenanceMessage] = useState("");
 
   // Gemini usage state
   const [usageCount, setUsageCount] = useState(0);
