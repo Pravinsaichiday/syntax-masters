@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { email, password, key, value } = await req.json();
+    const { email, password, key, value, action } = await req.json();
 
     if (email !== ADMIN_EMAIL || password !== ADMIN_PASS) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -27,6 +27,41 @@ Deno.serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
+    // Get usage stats
+    if (action === "get_usage") {
+      const { data: settings } = await supabase.from("admin_settings").select("*");
+      const usageCount = parseInt(settings?.find((s: any) => s.key === "gemini_usage_count")?.value || "0");
+      const lastReset = settings?.find((s: any) => s.key === "gemini_last_reset")?.value || "";
+      const customKey = settings?.find((s: any) => s.key === "gemini_api_key")?.value || "";
+      
+      // Check if the current key works by making a tiny test request
+      const activeKey = customKey || Deno.env.get("GEMINI_API_KEY") || "";
+      let keyStatus = "unknown";
+      
+      if (activeKey) {
+        try {
+          const testResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${activeKey}`);
+          const body = await testResp.text();
+          keyStatus = testResp.ok ? "active" : "invalid";
+        } catch {
+          keyStatus = "error";
+        }
+      } else {
+        keyStatus = "not_set";
+      }
+
+      return new Response(JSON.stringify({
+        usageCount,
+        lastReset,
+        keyStatus,
+        hasCustomKey: !!customKey,
+        keyPreview: activeKey ? `...${activeKey.slice(-6)}` : "none",
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Update a setting (including gemini_api_key)
     const { error } = await supabase
       .from("admin_settings")
       .update({ value, updated_at: new Date().toISOString() })
