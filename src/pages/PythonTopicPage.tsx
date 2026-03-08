@@ -18,6 +18,7 @@ export default function PythonTopicPage() {
   const { topicId } = useParams();
   const { user, profile, updateProfile } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const topic = PYTHON_TOPICS.find(t => t.id === topicId);
   
   const [activeTab, setActiveTab] = useState<"lesson" | "practice">("lesson");
@@ -26,6 +27,40 @@ export default function PythonTopicPage() {
   const [output, setOutput] = useState("");
   const [running, setRunning] = useState(false);
   const [showHints, setShowHints] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [earnedXp, setEarnedXp] = useState(0);
+
+  const fireConfetti = useCallback(() => {
+    const end = Date.now() + 1500;
+    const colors = ["#FFD700", "#FFA500", "#FF6347", "#00CED1", "#7B68EE"];
+    (function frame() {
+      confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 }, colors });
+      confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 }, colors });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    })();
+  }, []);
+
+  const getNextQuestion = useCallback(() => {
+    if (!topic || !selectedQuestion) return null;
+    const idx = topic.questions.findIndex(q => q.id === selectedQuestion.id);
+    return idx < topic.questions.length - 1 ? topic.questions[idx + 1] : null;
+  }, [topic, selectedQuestion]);
+
+  const handleGoToNext = () => {
+    const next = getNextQuestion();
+    if (next) {
+      handleSelectQuestion(next);
+      setShowSuccess(false);
+    } else {
+      const topicIdx = PYTHON_TOPICS.findIndex(t => t.id === topicId);
+      if (topicIdx < PYTHON_TOPICS.length - 1) {
+        navigate(`/learn-python/${PYTHON_TOPICS[topicIdx + 1].id}`);
+      } else {
+        navigate("/learn-python");
+      }
+      setShowSuccess(false);
+    }
+  };
 
   const { data: progress = [] } = useQuery({
     queryKey: ["python-progress", user?.id, topicId],
