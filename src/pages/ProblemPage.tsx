@@ -1,14 +1,16 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { PROBLEMS } from "@/data/mockData";
 import Navbar from "@/components/Navbar";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
-import { Play, Send, Lightbulb } from "lucide-react";
+import { Play, Send, Lightbulb, ArrowRight, Trophy } from "lucide-react";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import confetti from "canvas-confetti";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 const LANG_MAP: Record<string, { template: string }> = {
   "C++": { template: '#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    // Your code here\n    return 0;\n}' },
