@@ -103,7 +103,7 @@ export default function ProfilePage() {
     submissions.forEach((s: any) => {
       if (s.verdict === "Accepted" && !uniqueAccepted.has(s.problem_id)) {
         uniqueAccepted.add(s.problem_id);
-        const { PROBLEMS } = require("@/data/mockData");
+        
         const problem = PROBLEMS.find((p: any) => p.id === s.problem_id);
         if (problem) counts[problem.difficulty as keyof typeof counts]++;
       }
