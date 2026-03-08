@@ -85,7 +85,7 @@ export const LEARNING_TRACKS: LearningTrack[] = [
     color: "from-orange-500/10 to-orange-600/5",
     totalProblems: 50,
     topics: ["OOP", "Collections", "Generics", "Streams", "Concurrency"],
-    route: "/problems?difficulty=Easy",
+    route: "/learn/learn-java",
     difficulty: "Beginner → Intermediate",
   },
 ];

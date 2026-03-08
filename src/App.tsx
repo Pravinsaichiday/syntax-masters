@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import AIChatbot from "@/components/AIChatbot";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
@@ -20,6 +21,8 @@ import DSARoadmapPage from "./pages/DSARoadmapPage";
 import DSATopicPage from "./pages/DSATopicPage";
 import LearnPythonPage from "./pages/LearnPythonPage";
 import PythonTopicPage from "./pages/PythonTopicPage";
+import LearnTrackPage from "./pages/LearnTrackPage";
+import TrackTopicPage from "./pages/TrackTopicPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import MaintenancePage from "./pages/MaintenancePage";
 import NotFound from "./pages/NotFound";
@@ -48,7 +51,6 @@ function AppRoutes() {
     );
   }
 
-  // If maintenance mode is on, show maintenance page for all routes EXCEPT /admin
   if (isMaintenanceMode) {
     return (
       <BrowserRouter>
@@ -77,9 +79,12 @@ function AppRoutes() {
         <Route path="/dsa/:topicId" element={<DSATopicPage />} />
         <Route path="/learn-python" element={<LearnPythonPage />} />
         <Route path="/learn-python/:topicId" element={<PythonTopicPage />} />
+        <Route path="/learn/:trackId" element={<LearnTrackPage />} />
+        <Route path="/learn/:trackId/:topicId" element={<TrackTopicPage />} />
         <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <AIChatbot />
     </BrowserRouter>
   );
 }
