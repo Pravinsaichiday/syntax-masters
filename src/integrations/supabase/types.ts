@@ -35,6 +35,42 @@ export type Database = {
         }
         Relationships: []
       }
+      dsa_progress: {
+        Row: {
+          code: string | null
+          completed: boolean
+          created_at: string
+          id: string
+          language: string | null
+          problem_id: string
+          topic_id: string
+          used_solution: boolean | null
+          user_id: string
+        }
+        Insert: {
+          code?: string | null
+          completed?: boolean
+          created_at?: string
+          id?: string
+          language?: string | null
+          problem_id: string
+          topic_id: string
+          used_solution?: boolean | null
+          user_id: string
+        }
+        Update: {
+          code?: string | null
+          completed?: boolean
+          created_at?: string
+          id?: string
+          language?: string | null
+          problem_id?: string
+          topic_id?: string
+          used_solution?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
