@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_settings: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -65,6 +86,39 @@ export type Database = {
           user_id?: string
           username?: string | null
           xp?: number
+        }
+        Relationships: []
+      }
+      python_progress: {
+        Row: {
+          code: string | null
+          completed: boolean
+          created_at: string
+          difficulty: string
+          id: string
+          question_id: string
+          topic_id: string
+          user_id: string
+        }
+        Insert: {
+          code?: string | null
+          completed?: boolean
+          created_at?: string
+          difficulty: string
+          id?: string
+          question_id: string
+          topic_id: string
+          user_id: string
+        }
+        Update: {
+          code?: string | null
+          completed?: boolean
+          created_at?: string
+          difficulty?: string
+          id?: string
+          question_id?: string
+          topic_id?: string
+          user_id?: string
         }
         Relationships: []
       }
