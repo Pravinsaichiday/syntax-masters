@@ -131,6 +131,16 @@ Be strict but fair. If the code logic is correct for all test cases, give Accept
       };
     }
 
+    // Track usage
+    try {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const sb = createClient(supabaseUrl, serviceRoleKey);
+      const { data: countRow } = await sb.from('admin_settings').select('value').eq('key', 'gemini_usage_count').single();
+      const current = parseInt(countRow?.value || '0');
+      await sb.from('admin_settings').update({ value: String(current + 1) }).eq('key', 'gemini_usage_count');
+    } catch (e) { console.error('Usage tracking error:', e); }
+
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
