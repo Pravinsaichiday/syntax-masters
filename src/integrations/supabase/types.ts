@@ -78,6 +78,7 @@ export type Database = {
           daily_time: string | null
           id: string
           language: string | null
+          last_solved_at: string | null
           level: string | null
           name: string
           onboarded: boolean
@@ -95,6 +96,7 @@ export type Database = {
           daily_time?: string | null
           id?: string
           language?: string | null
+          last_solved_at?: string | null
           level?: string | null
           name: string
           onboarded?: boolean
@@ -112,6 +114,7 @@ export type Database = {
           daily_time?: string | null
           id?: string
           language?: string | null
+          last_solved_at?: string | null
           level?: string | null
           name?: string
           onboarded?: boolean
