@@ -10,20 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-function generateHeatmap() {
-  const days = [];
-  for (let i = 364; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    days.push({ date: date.toISOString().split("T")[0], count: Math.random() > 0.4 ? Math.floor(Math.random() * 8) : 0 });
-  }
-  return days;
-}
-
 export default function ProfilePage() {
   const { username } = useParams();
   const { profile: currentProfile, updateProfile } = useAuth();
-  const heatmap = useMemo(() => generateHeatmap(), []);
   const [editingUsername, setEditingUsername] = useState(false);
   const [newUsername, setNewUsername] = useState("");
 
@@ -41,13 +30,115 @@ export default function ProfilePage() {
   });
 
   const isOwnProfile = currentProfile && (username === currentProfile.username || username === currentProfile.user_id);
+  const userId = isOwnProfile ? currentProfile?.user_id : dbProfile?.user_id;
+
+  // Real activity heatmap from submissions
+  const { data: submissions = [] } = useQuery({
+    queryKey: ["user-submissions", userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data } = await supabase
+        .from("submissions")
+        .select("created_at, verdict, problem_id")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+      return data || [];
+    },
+    enabled: !!userId,
+  });
+
+  const heatmap = useMemo(() => {
+    const days: { date: string; count: number }[] = [];
+    const counts: Record<string, number> = {};
+    
+    submissions.forEach((s: any) => {
+      const date = new Date(s.created_at).toISOString().split("T")[0];
+      counts[date] = (counts[date] || 0) + 1;
+    });
+
+    for (let i = 364; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const key = date.toISOString().split("T")[0];
+      days.push({ date: key, count: counts[key] || 0 });
+    }
+    return days;
+  }, [submissions]);
+
+  // Real topic mastery from submissions
+  const topicMastery = useMemo(() => {
+    const topicCounts: Record<string, number> = {};
+    const uniqueProblems = new Set<string>();
+    
+    submissions.forEach((s: any) => {
+      if (s.verdict === "Accepted" && !uniqueProblems.has(s.problem_id)) {
+        uniqueProblems.add(s.problem_id);
+      }
+    });
+    
+    // We can derive topics from problem_id matching against PROBLEMS
+    const { PROBLEMS } = require("@/data/mockData");
+    uniqueProblems.forEach(pid => {
+      const problem = PROBLEMS.find((p: any) => p.id === pid);
+      if (problem) {
+        problem.topics.forEach((t: string) => {
+          topicCounts[t] = (topicCounts[t] || 0) + 1;
+        });
+      }
+    });
+
+    const maxCount = Math.max(...Object.values(topicCounts), 1);
+    return Object.entries(topicCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([topic, count]) => ({ topic, mastery: Math.round((count / maxCount) * 100) }));
+  }, [submissions]);
+
+  // Real difficulty distribution
+  const distribution = useMemo(() => {
+    const counts = { Easy: 0, Medium: 0, Hard: 0 };
+    const uniqueAccepted = new Set<string>();
+    
+    submissions.forEach((s: any) => {
+      if (s.verdict === "Accepted" && !uniqueAccepted.has(s.problem_id)) {
+        uniqueAccepted.add(s.problem_id);
+        const { PROBLEMS } = require("@/data/mockData");
+        const problem = PROBLEMS.find((p: any) => p.id === s.problem_id);
+        if (problem) counts[problem.difficulty as keyof typeof counts]++;
+      }
+    });
+
+    const total = counts.Easy + counts.Medium + counts.Hard || 1;
+    return {
+      Easy: Math.round((counts.Easy / total) * 100),
+      Medium: Math.round((counts.Medium / total) * 100),
+      Hard: Math.round((counts.Hard / total) * 100),
+    };
+  }, [submissions]);
+
+  // Leaderboard rank
+  const { data: leaderboardRank } = useQuery({
+    queryKey: ["user-rank", userId],
+    queryFn: async () => {
+      if (!userId) return 0;
+      const { data } = await supabase
+        .from("profiles")
+        .select("user_id")
+        .gt("solved_count", 0)
+        .order("xp", { ascending: false });
+      if (!data) return 0;
+      const idx = data.findIndex((p: any) => p.user_id === userId);
+      return idx >= 0 ? idx + 1 : 0;
+    },
+    enabled: !!userId,
+  });
 
   const profileData = isOwnProfile && currentProfile
     ? {
         name: currentProfile.name,
         username: currentProfile.username || currentProfile.user_id,
         xp: currentProfile.xp,
-        rank: currentProfile.rank,
+        rank: leaderboardRank || currentProfile.rank,
         streak: currentProfile.streak,
         solved: currentProfile.solved_count,
         language: currentProfile.language || "Not set",
@@ -60,7 +151,7 @@ export default function ProfilePage() {
         name: dbProfile.name,
         username: dbProfile.username || dbProfile.user_id,
         xp: dbProfile.xp,
-        rank: dbProfile.rank,
+        rank: leaderboardRank || dbProfile.rank,
         streak: dbProfile.streak,
         solved: dbProfile.solved_count,
         language: dbProfile.language || "Not set",
@@ -88,7 +179,6 @@ export default function ProfilePage() {
       toast.error("Username can only contain letters, numbers, and underscores");
       return;
     }
-    // Check uniqueness
     const { data: existing } = await supabase.from("profiles").select("id").eq("username", trimmed).single();
     if (existing) {
       toast.error("Username already taken");
@@ -103,10 +193,8 @@ export default function ProfilePage() {
     { icon: Target, label: "Problems Solved", value: profileData.solved },
     { icon: Zap, label: "XP Earned", value: profileData.xp.toLocaleString() },
     { icon: Flame, label: "Day Streak", value: profileData.streak },
-    { icon: TrendingUp, label: "Global Rank", value: `#${profileData.rank || "—"}` },
+    { icon: TrendingUp, label: "Global Rank", value: profileData.rank ? `#${profileData.rank}` : "—" },
   ];
-
-  const distribution = { Easy: 45, Medium: 35, Hard: 20 };
 
   return (
     <div className="min-h-screen bg-background">
@@ -119,19 +207,9 @@ export default function ProfilePage() {
             <div className="flex items-center gap-2">
               {editingUsername ? (
                 <div className="flex items-center gap-2">
-                  <Input
-                    value={newUsername}
-                    onChange={(e) => setNewUsername(e.target.value)}
-                    placeholder="Choose username"
-                    className="h-8 w-48 bg-surface-2 text-sm"
-                    maxLength={20}
-                  />
-                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={handleSaveUsername}>
-                    <Check className="h-4 w-4 text-success" />
-                  </Button>
-                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setEditingUsername(false)}>
-                    <X className="h-4 w-4 text-destructive" />
-                  </Button>
+                  <Input value={newUsername} onChange={(e) => setNewUsername(e.target.value)} placeholder="Choose username" className="h-8 w-48 bg-surface-2 text-sm" maxLength={20} />
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={handleSaveUsername}><Check className="h-4 w-4 text-success" /></Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setEditingUsername(false)}><X className="h-4 w-4 text-destructive" /></Button>
                 </div>
               ) : (
                 <>
@@ -200,17 +278,18 @@ export default function ProfilePage() {
           </div>
           <div className="rounded-xl border border-border bg-card p-6">
             <h2 className="mb-4 text-lg font-semibold flex items-center gap-2"><TrendingUp className="h-5 w-5 text-primary" />Topic Mastery</h2>
-            <div className="space-y-2">
-              {["Arrays", "Dynamic Programming", "Graphs", "Trees", "Strings"].map((topic) => {
-                const mastery = Math.floor(Math.random() * 60 + 30);
-                return (
+            {topicMastery.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Solve problems to see topic mastery.</p>
+            ) : (
+              <div className="space-y-2">
+                {topicMastery.map(({ topic, mastery }) => (
                   <div key={topic}>
                     <div className="mb-1 flex justify-between text-sm"><span className="text-foreground">{topic}</span><span className="text-muted-foreground">{mastery}%</span></div>
                     <div className="h-1.5 w-full rounded-full bg-surface-3"><div className="h-1.5 rounded-full bg-primary/60" style={{ width: `${mastery}%` }} /></div>
                   </div>
-                );
-              })}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

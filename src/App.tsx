@@ -15,6 +15,9 @@ import ProblemPage from "./pages/ProblemPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import ProfilePage from "./pages/ProfilePage";
 import ContestsPage from "./pages/ContestsPage";
+import LearnPythonPage from "./pages/LearnPythonPage";
+import PythonTopicPage from "./pages/PythonTopicPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +41,9 @@ const App = () => (
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/profile/:username" element={<ProfilePage />} />
             <Route path="/contests" element={<ContestsPage />} />
+            <Route path="/learn-python" element={<LearnPythonPage />} />
+            <Route path="/learn-python/:topicId" element={<PythonTopicPage />} />
+            <Route path="/admin" element={<AdminDashboardPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -3,13 +3,25 @@ import { PROBLEMS, TOPICS } from "@/data/mockData";
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Search, Filter } from "lucide-react";
+import { Search, BookOpen, Lock, Unlock, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 export default function ProblemsPage() {
   const [search, setSearch] = useState("");
   const [difficulty, setDifficulty] = useState<string>("All");
   const [topic, setTopic] = useState<string>("All");
+
+  const { data: settings } = useQuery({
+    queryKey: ["admin-settings"],
+    queryFn: async () => {
+      const { data } = await supabase.from("admin_settings").select("*");
+      return data || [];
+    },
+  });
+
+  const pythonLocked = settings?.find((s: any) => s.key === "python_locked")?.value === "true";
 
   const filtered = useMemo(() => {
     return PROBLEMS.filter((p) => {
@@ -25,6 +37,34 @@ export default function ProblemsPage() {
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <h1 className="mb-6 text-2xl font-bold">Problem Set</h1>
+
+        {/* Learn Python Section */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+          <Link
+            to="/learn-python"
+            className="group flex items-center justify-between rounded-xl border border-primary/30 bg-gradient-to-r from-primary/5 to-primary/10 p-6 transition-all hover:border-primary/50 hover:glow-gold-sm"
+          >
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                <BookOpen className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-bold">Learn Python from Scratch</h2>
+                  {pythonLocked ? (
+                    <Lock className="h-4 w-4 text-destructive" />
+                  ) : (
+                    <Unlock className="h-4 w-4 text-success" />
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  20 topics · 60 hands-on problems · Beginner to Advanced
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="h-5 w-5 text-primary transition-transform group-hover:translate-x-1" />
+          </Link>
+        </motion.div>
 
         {/* Filters */}
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center">

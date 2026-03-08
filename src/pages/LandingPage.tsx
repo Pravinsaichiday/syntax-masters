@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Zap, Trophy, Brain, Code2, BarChart3, Users } from "lucide-react";
+import { useState } from "react";
 
 const features = [
   { icon: Code2, title: "Built-in Code Editor", desc: "Write, compile, and run code in 10+ languages with real-time feedback." },
@@ -21,6 +22,16 @@ const stats = [
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [footerClicks, setFooterClicks] = useState(0);
+
+  const handleFooterClick = () => {
+    const newCount = footerClicks + 1;
+    setFooterClicks(newCount);
+    if (newCount >= 5) {
+      setFooterClicks(0);
+      navigate("/admin");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -121,14 +132,19 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* Footer with hidden admin trigger */}
       <footer className="border-t border-border bg-surface-1 py-8">
         <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 md:flex-row">
           <div className="flex items-center gap-2">
             <Code2 className="h-5 w-5 text-primary" />
             <span className="font-semibold">CodeForge</span>
           </div>
-          <p className="text-sm text-muted-foreground">&copy; 2026 CodeForge. All rights reserved.</p>
+          <p
+            className="text-sm text-muted-foreground cursor-default select-none"
+            onClick={handleFooterClick}
+          >
+            &copy; 2026 CodeForge. All rights reserved.
+          </p>
         </div>
       </footer>
     </div>
