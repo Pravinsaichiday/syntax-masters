@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import { useState, useCallback } from "react";
 import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
-import { Play, CheckCircle2, Circle, ArrowLeft, ArrowRight, Eye, Trophy, AlertTriangle } from "lucide-react";
+import { Play, CheckCircle2, Circle, ArrowLeft, ArrowRight, Eye, Trophy, AlertTriangle, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
