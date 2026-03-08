@@ -4,19 +4,23 @@ import { useAuth } from "@/contexts/AuthContext";
 import { PROBLEMS } from "@/data/mockData";
 import { PYTHON_TOPICS } from "@/data/pythonTopics";
 import { motion } from "framer-motion";
-import { Target, Zap, Flame, TrendingUp, Calendar, Award, Pencil, Check, X, CheckCircle2, ExternalLink, BookOpen } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Target, Zap, Flame, TrendingUp, Calendar, Award, Pencil, Check, X, CheckCircle2, ExternalLink, BookOpen, Camera } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 export default function ProfilePage() {
   const { username } = useParams();
-  const { profile: currentProfile, updateProfile } = useAuth();
+  const { profile: currentProfile, updateProfile, refreshProfile } = useAuth();
   const [editingUsername, setEditingUsername] = useState(false);
   const [newUsername, setNewUsername] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
 
   const { data: dbProfile } = useQuery({
     queryKey: ["profile", username],
@@ -204,6 +208,41 @@ export default function ProfilePage() {
 
   const canEditUsername = isOwnProfile && !currentProfile?.username;
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !currentProfile) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB");
+      return;
+    }
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `${currentProfile.user_id}/avatar.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(path, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data: { publicUrl } } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(path);
+      const urlWithCacheBust = `${publicUrl}?t=${Date.now()}`;
+      await updateProfile({ avatar_url: urlWithCacheBust });
+      await refreshProfile();
+      queryClient.invalidateQueries({ queryKey: ["profile", username] });
+      toast.success("Profile picture updated!");
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   const handleSaveUsername = async () => {
     const trimmed = newUsername.trim();
     if (!trimmed || trimmed.length < 3) {
@@ -236,7 +275,26 @@ export default function ProfilePage() {
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex items-center gap-6">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-primary bg-surface-2 text-3xl font-bold text-primary">{profileData.name.charAt(0)}</div>
+          <div className="relative group">
+            <Avatar className="h-20 w-20 border-2 border-primary">
+              {(isOwnProfile ? currentProfile?.avatar_url : dbProfile?.avatar_url) ? (
+                <AvatarImage src={isOwnProfile ? currentProfile!.avatar_url! : dbProfile!.avatar_url!} alt={profileData.name} />
+              ) : null}
+              <AvatarFallback className="bg-surface-2 text-3xl font-bold text-primary">{profileData.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            {isOwnProfile && (
+              <>
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="absolute inset-0 flex items-center justify-center rounded-full bg-background/60 opacity-0 transition-opacity group-hover:opacity-100"
+                >
+                  <Camera className="h-6 w-6 text-foreground" />
+                </button>
+              </>
+            )}
+          </div>
           <div>
             <h1 className="text-2xl font-bold">{profileData.name}</h1>
             <div className="flex items-center gap-2">
