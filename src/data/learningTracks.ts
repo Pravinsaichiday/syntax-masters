@@ -52,7 +52,7 @@ export const LEARNING_TRACKS: LearningTrack[] = [
     color: "from-red-500/10 to-red-600/5",
     totalProblems: 120,
     topics: ["Segment Tree", "Trie", "Graphs", "Bit Manipulation", "Math"],
-    route: "/problems?difficulty=Advanced",
+    route: "/learn/competitive-prep",
     difficulty: "Intermediate → Advanced",
   },
   {
