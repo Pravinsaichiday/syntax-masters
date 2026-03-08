@@ -166,13 +166,13 @@ export default function ProblemsPage() {
         <div className="rounded-xl border border-border bg-card">
           <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 border-b border-border px-5 py-3 text-xs font-medium text-muted-foreground">
             <span>Title</span>
-            <button onClick={() => toggleSort("difficulty")} className="text-right flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer">
+            <button onClick={() => toggleSort("difficulty")} className={`text-right flex items-center gap-1 transition-colors cursor-pointer ${isSortActive("difficulty") ? "text-primary font-semibold" : "hover:text-foreground"}`}>
               Difficulty {getSortIcon("difficulty")} <ArrowUpDown className="h-3 w-3" />
             </button>
-            <button onClick={() => toggleSort("acceptance")} className="text-right hidden sm:flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer">
+            <button onClick={() => toggleSort("acceptance")} className={`text-right hidden sm:flex items-center gap-1 transition-colors cursor-pointer ${isSortActive("acceptance") ? "text-primary font-semibold" : "hover:text-foreground"}`}>
               Acceptance {getSortIcon("acceptance")} <ArrowUpDown className="h-3 w-3" />
             </button>
-            <button onClick={() => toggleSort("xp")} className="text-right flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer">
+            <button onClick={() => toggleSort("xp")} className={`text-right flex items-center gap-1 transition-colors cursor-pointer ${isSortActive("xp") ? "text-primary font-semibold" : "hover:text-foreground"}`}>
               XP {getSortIcon("xp")} <ArrowUpDown className="h-3 w-3" />
             </button>
           </div>
