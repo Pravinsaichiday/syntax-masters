@@ -1,9 +1,10 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
 import { PROBLEMS } from "@/data/mockData";
+import { PYTHON_TOPICS } from "@/data/pythonTopics";
 import { motion } from "framer-motion";
-import { Target, Zap, Flame, TrendingUp, Calendar, Award, Pencil, Check, X } from "lucide-react";
+import { Target, Zap, Flame, TrendingUp, Calendar, Award, Pencil, Check, X, CheckCircle2, ExternalLink, BookOpen } from "lucide-react";
 import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -47,6 +48,39 @@ export default function ProfilePage() {
     },
     enabled: !!userId,
   });
+
+  // Python progress
+  const { data: pythonProgress = [] } = useQuery({
+    queryKey: ["user-python-progress", userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data } = await supabase
+        .from("python_progress")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("completed", true);
+      return data || [];
+    },
+    enabled: !!userId,
+  });
+
+  // Solved problems list
+  const solvedProblems = useMemo(() => {
+    const accepted = new Set<string>();
+    submissions.forEach((s: any) => {
+      if (s.verdict === "Accepted") accepted.add(s.problem_id);
+    });
+    return PROBLEMS.filter(p => accepted.has(p.id));
+  }, [submissions]);
+
+  // Solved python questions
+  const solvedPython = useMemo(() => {
+    return pythonProgress.map((p: any) => {
+      const topic = PYTHON_TOPICS.find(t => t.id === p.topic_id);
+      const question = topic?.questions.find(q => q.id === p.question_id);
+      return question ? { ...question, topicTitle: topic?.title || "" } : null;
+    }).filter(Boolean);
+  }, [pythonProgress]);
 
   const heatmap = useMemo(() => {
     const days: { date: string; count: number }[] = [];
@@ -293,6 +327,60 @@ export default function ProfilePage() {
             )}
           </div>
         </div>
+        {/* Solved Problems */}
+        {(solvedProblems.length > 0 || solvedPython.length > 0) && (
+          <div className="mb-8 rounded-xl border border-border bg-card p-6">
+            <h2 className="mb-4 text-lg font-semibold flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-success" />Solved Problems
+            </h2>
+
+            {solvedProblems.length > 0 && (
+              <div className="mb-4">
+                <h3 className="text-sm font-medium text-muted-foreground mb-3">Competitive Problems</h3>
+                <div className="space-y-2">
+                  {solvedProblems.map(p => (
+                    <Link key={p.id} to={`/problem/${p.id}`} className="flex items-center justify-between rounded-lg border border-border bg-surface-2 px-4 py-3 transition-colors hover:border-primary/30">
+                      <div className="flex items-center gap-3">
+                        <CheckCircle2 className="h-4 w-4 text-success" />
+                        <span className="text-sm font-medium">{p.title}</span>
+                        <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${
+                          p.difficulty === "Easy" ? "bg-success/10 text-success" :
+                          p.difficulty === "Medium" ? "bg-primary/10 text-primary" :
+                          "bg-destructive/10 text-destructive"
+                        }`}>{p.difficulty}</span>
+                      </div>
+                      <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {solvedPython.length > 0 && (
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+                  <BookOpen className="h-4 w-4" />Python Practice
+                </h3>
+                <div className="space-y-2">
+                  {solvedPython.map((q: any) => (
+                    <div key={q.id} className="flex items-center gap-3 rounded-lg border border-border bg-surface-2 px-4 py-3">
+                      <CheckCircle2 className="h-4 w-4 text-success" />
+                      <div>
+                        <span className="text-sm font-medium">{q.title}</span>
+                        <span className="ml-2 text-xs text-muted-foreground">{q.topicTitle}</span>
+                      </div>
+                      <span className={`ml-auto rounded px-1.5 py-0.5 text-[10px] font-medium ${
+                        q.difficulty === "Easy" ? "bg-success/10 text-success" :
+                        q.difficulty === "Medium" ? "bg-primary/10 text-primary" :
+                        "bg-destructive/10 text-destructive"
+                      }`}>{q.difficulty}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

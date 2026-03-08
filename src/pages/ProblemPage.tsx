@@ -47,18 +47,23 @@ export default function ProblemPage() {
   const [solutionCode, setSolutionCode] = useState<string | null>(null);
   const [loadingSolution, setLoadingSolution] = useState(false);
 
-  // Check if user already solved this problem
+  // Check if user already solved this problem & load their last code
   useEffect(() => {
     if (!user || !problem) return;
     supabase
       .from("submissions")
-      .select("id")
+      .select("id, code, language")
       .eq("user_id", user.id)
       .eq("problem_id", problem.id)
       .eq("verdict", "Accepted")
+      .order("created_at", { ascending: false })
       .limit(1)
       .then(({ data }) => {
-        setAlreadySolved(!!(data && data.length > 0));
+        if (data && data.length > 0) {
+          setAlreadySolved(true);
+          setCode(data[0].code);
+          setLanguage(data[0].language);
+        }
       });
   }, [user, problem?.id]);
 
