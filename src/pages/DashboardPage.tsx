@@ -49,7 +49,7 @@ export default function DashboardPage() {
     { icon: Target, label: "Problems Solved", value: profile.solved_count, color: "text-primary" },
     { icon: Zap, label: "XP Earned", value: profile.xp.toLocaleString(), color: "text-primary" },
     { icon: Flame, label: "Day Streak", value: profile.streak, color: "text-destructive" },
-    { icon: TrendingUp, label: "Global Rank", value: `#${profile.rank || "—"}`, color: "text-info" },
+    { icon: TrendingUp, label: "Leaderboard Rank", value: leaderboardRank ? `#${leaderboardRank}` : "—", color: "text-info" },
   ];
 
   return (
