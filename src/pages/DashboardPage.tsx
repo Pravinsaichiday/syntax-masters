@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Flame, Target, TrendingUp, Zap, BookOpen, Trophy, ArrowRight, Map } from "lucide-react";
-import { PROBLEMS } from "@/data/mockData";
+import { ALL_PROBLEMS } from "@/data/problemsDatabase";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
