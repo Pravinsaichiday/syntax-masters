@@ -143,7 +143,7 @@ export default function LandingPage() {
             className="text-sm text-muted-foreground cursor-default select-none"
             onClick={handleFooterClick}
           >
-            &copy; 2026 CodeForge. All rights reserved.
+            &copy; 2026 SyntaxMasters. All rights reserved.
           </p>
         </div>
       </footer>
