@@ -21,6 +21,8 @@ export default function OnboardingPage() {
     if (!loading && !isAuthenticated) navigate("/login", { replace: true });
   }, [loading, isAuthenticated, navigate]);
 
+  if (!loading && !isAuthenticated) return null;
+
   const handleFinish = async () => {
     await updateProfile({ language, level, daily_time: dailyTime, onboarded: true });
     navigate("/dashboard");
