@@ -377,13 +377,6 @@ export default function ProblemPage() {
 
         {/* Right: Code Editor */}
         <div className="flex w-full flex-col lg:w-[55%]">
-          {/* Approach Gate */}
-          <div className="px-4 pt-3">
-            <ApproachGate
-              onUnlock={() => setApproachUnlocked(true)}
-              isUnlocked={approachUnlocked || alreadySolved || !user}
-            />
-          </div>
 
           <div className="flex items-center justify-between border-b border-border px-4 py-2">
             <div className="flex items-center gap-2">
