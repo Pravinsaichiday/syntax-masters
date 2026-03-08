@@ -270,27 +270,27 @@ export default function ProblemPage() {
             <span className="text-xs text-primary">+{problem.xpReward} XP</span>
             {alreadySolved && <span className="rounded-md bg-success/10 px-2 py-0.5 text-xs font-bold text-success">✓ Solved</span>}
           </div>
-          <h1 className="mb-4 text-xl font-bold">{problem.title}</h1>
+          <h1 className="mb-4 text-2xl font-bold">{problem.title}</h1>
           <div className="mb-4 flex gap-2 flex-wrap">{problem.topics.map((t) => <span key={t} className="rounded bg-surface-3 px-2 py-0.5 text-xs text-muted-foreground">{t}</span>)}</div>
 
           <div className="prose prose-sm prose-invert max-w-none">
-            <p className="text-sm leading-relaxed text-foreground/90">{problem.description}</p>
+            <p className="text-[15px] leading-relaxed text-foreground/90">{problem.description}</p>
 
             {/* Input Format */}
             <div className="mt-6 rounded-lg border border-border bg-surface-2 p-4">
-              <h3 className="text-sm font-semibold text-foreground mb-2">📥 Input Format</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{problem.inputFormat}</p>
+              <h3 className="text-sm font-bold text-foreground mb-2">📥 Input Format</h3>
+              <p className="text-[13px] text-muted-foreground leading-relaxed">{problem.inputFormat}</p>
             </div>
 
             {/* Output Format */}
             <div className="mt-3 rounded-lg border border-border bg-surface-2 p-4">
-              <h3 className="text-sm font-semibold text-foreground mb-2">📤 Output Format</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{problem.outputFormat}</p>
+              <h3 className="text-sm font-bold text-foreground mb-2">📤 Output Format</h3>
+              <p className="text-[13px] text-muted-foreground leading-relaxed">{problem.outputFormat}</p>
             </div>
 
             {/* Constraints */}
             <div className="mt-3 rounded-lg border border-border bg-surface-2 p-4">
-              <h3 className="text-sm font-semibold text-foreground mb-2">⚠️ Constraints</h3>
+              <h3 className="text-sm font-bold text-foreground mb-2">⚠️ Constraints</h3>
               <ul className="space-y-1.5">
                 {problem.constraints.map((c, i) => (
                   <li key={i} className="flex items-start gap-2">
@@ -302,7 +302,7 @@ export default function ProblemPage() {
             </div>
 
             {/* Sample Cases */}
-            <h3 className="mt-6 text-sm font-semibold text-foreground">Sample Cases</h3>
+            <h3 className="mt-6 text-base font-bold text-foreground">Sample Cases</h3>
             {problem.sampleCases.map((sc, i) => (
               <div key={i} className="mt-3 rounded-lg border border-border bg-surface-2 p-4">
                 <div className="mb-3">
@@ -419,25 +419,25 @@ export default function ProblemPage() {
           {/* Output / Custom Test Cases tabs */}
           <div className="border-t border-border">
             <div className="flex items-center gap-4 px-4 py-2 border-b border-border">
-              <button
+               <button
                 onClick={() => setActiveTab("output")}
-                className={`text-sm font-medium transition-colors ${activeTab === "output" ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                className={`text-sm font-bold transition-colors ${activeTab === "output" ? "text-foreground border-b-2 border-primary pb-1" : "text-muted-foreground hover:text-foreground pb-1"}`}
               >
                 Output
               </button>
               <button
                 onClick={() => setActiveTab("custom")}
-                className={`text-sm font-medium flex items-center gap-1 transition-colors ${activeTab === "custom" ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                className={`text-sm font-bold flex items-center gap-1 transition-colors ${activeTab === "custom" ? "text-foreground border-b-2 border-primary pb-1" : "text-muted-foreground hover:text-foreground pb-1"}`}
               >
                 <TestTube className="h-3.5 w-3.5" /> Custom Test
               </button>
               {verdict && activeTab === "output" && (
-                <span className={`rounded-md px-2 py-0.5 text-xs font-bold ${verdict === "Accepted" ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`}>{verdict}</span>
+                <span className={`rounded-md px-2.5 py-1 text-sm font-bold ${verdict === "Accepted" ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`}>{verdict}</span>
               )}
             </div>
 
             {activeTab === "output" ? (
-              <pre className="h-32 overflow-y-auto p-4 font-mono text-xs text-muted-foreground">
+              <pre className="h-36 overflow-y-auto p-4 font-mono text-sm text-muted-foreground leading-relaxed">
                 {running ? "Processing..." : output || "Run or submit your code to see output here."}
               </pre>
             ) : (
