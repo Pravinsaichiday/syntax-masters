@@ -44,6 +44,7 @@ export default function AdminDashboardPage() {
       data.forEach((s: any) => {
         if (s.key === "maintenance_mode") setMaintenanceMode(s.value === "true");
         if (s.key === "python_locked") setPythonLocked(s.value === "true");
+        if (s.key === "maintenance_message") setMaintenanceMessage(s.value);
       });
     }
   };
