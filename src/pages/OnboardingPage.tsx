@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -17,10 +17,9 @@ export default function OnboardingPage() {
   const [level, setLevel] = useState("");
   const [dailyTime, setDailyTime] = useState("");
 
-  if (!loading && !isAuthenticated) {
-    navigate("/login");
-    return null;
-  }
+  useEffect(() => {
+    if (!loading && !isAuthenticated) navigate("/login", { replace: true });
+  }, [loading, isAuthenticated, navigate]);
 
   const handleFinish = async () => {
     await updateProfile({ language, level, daily_time: dailyTime, onboarded: true });
