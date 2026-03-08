@@ -13,6 +13,7 @@ export default function DSARoadmapPage() {
   const { user } = useAuth();
   const [activeTopicId, setActiveTopicId] = useState<string>(DSA_ROADMAP[0]?.id || "");
   const topicRefs = useRef<Record<string, HTMLElement | null>>({});
+  const sidebarDotsRef = useRef<Record<string, HTMLElement | null>>({});
 
   const { data: progress = [] } = useQuery({
     queryKey: ["dsa-progress-all", user?.id],
@@ -71,6 +72,15 @@ export default function DSARoadmapPage() {
   };
 
   const activeIndex = DSA_ROADMAP.findIndex(t => t.id === activeTopicId);
+  const totalTopics = DSA_ROADMAP.length;
+
+  // Calculate line height based on dot positions for accuracy
+  const getLineHeight = () => {
+    if (totalTopics <= 1) return "0px";
+    // Use percentage that maps first dot to last dot
+    const percent = ((activeIndex + 1) / totalTopics) * 100;
+    return `${percent}%`;
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -81,7 +91,7 @@ export default function DSARoadmapPage() {
           <h1 className="text-3xl font-bold mb-2">
             DSA <span className="text-gradient-gold">Roadmap</span>
           </h1>
-          <p className="text-muted-foreground mb-4">Master Data Structures & Algorithms from scratch — solve every problem topic by topic.</p>
+          <p className="text-muted-foreground mb-4">Master Data Structures & Algorithms — 12 core topics with 40+ real problems.</p>
           <div className="rounded-xl border border-border bg-card p-5 glow-gold-sm">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium">Overall Progress</span>
@@ -97,17 +107,16 @@ export default function DSARoadmapPage() {
           {/* Scrollspy Sidebar */}
           <div className="hidden lg:block w-60 shrink-0">
             <div className="sticky top-20">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4 pl-6">Topics</p>
-              <div className="relative">
-                {/* Track */}
-                <div className="absolute left-[9px] top-0 bottom-0 w-[3px] rounded-full bg-border" />
-                {/* Active fill */}
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4 pl-7">Topics</p>
+              <nav className="relative">
+                {/* Background track */}
+                <div className="absolute left-[10px] top-0 bottom-0 w-[3px] rounded-full bg-border" />
+                {/* Active progress fill */}
                 <div
-                  className="absolute left-[9px] top-0 w-[3px] rounded-full bg-primary transition-all duration-500 ease-out"
+                  className="absolute left-[10px] top-0 w-[3px] rounded-full bg-primary"
                   style={{
-                    height: DSA_ROADMAP.length > 1
-                      ? `calc(${(activeIndex / (DSA_ROADMAP.length - 1)) * 100}% + 10px)`
-                      : "10px",
+                    height: getLineHeight(),
+                    transition: "height 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
                   }}
                 />
 
@@ -123,35 +132,37 @@ export default function DSARoadmapPage() {
                       <li key={topic.id}>
                         <button
                           onClick={() => scrollToTopic(topic.id)}
-                          className={`relative flex items-center gap-3 w-full text-left py-2 pl-7 pr-2 rounded-r-lg text-[13px] transition-all duration-200 ${
+                          className={`relative flex items-center w-full text-left py-2.5 pl-8 pr-2 rounded-r-lg text-[13px] leading-tight transition-all duration-300 ${
                             isActive
-                              ? "text-primary font-bold bg-primary/5"
+                              ? "text-primary font-bold bg-primary/8"
                               : isPast
-                              ? "text-foreground/70"
-                              : "text-muted-foreground hover:text-foreground"
+                              ? "text-foreground/70 font-medium"
+                              : "text-muted-foreground/60 hover:text-muted-foreground"
                           }`}
                         >
-                          {/* Dot */}
-                          <span className={`absolute left-[3px] h-[15px] w-[15px] rounded-full border-[3px] transition-all duration-300 ${
-                            isComplete
-                              ? "border-[hsl(var(--success))] bg-[hsl(var(--success))] scale-100"
-                              : isActive
-                              ? "border-primary bg-primary scale-110"
-                              : hasProgress
-                              ? "border-primary/60 bg-primary/20"
-                              : isPast
-                              ? "border-primary/40 bg-primary/10"
-                              : "border-muted-foreground/30 bg-background"
-                          }`} />
-
-                          <span className="truncate leading-tight">{topic.title}</span>
+                          {/* Dot on the line */}
+                          <span
+                            ref={(el) => { sidebarDotsRef.current[topic.id] = el; }}
+                            className={`absolute left-[4px] h-[14px] w-[14px] rounded-full border-[3px] transition-all duration-300 ${
+                              isComplete
+                                ? "border-[hsl(var(--success))] bg-[hsl(var(--success))] scale-110"
+                                : isActive
+                                ? "border-primary bg-primary scale-125 shadow-[0_0_8px_hsl(var(--primary)/0.5)]"
+                                : hasProgress
+                                ? "border-primary/60 bg-primary/25"
+                                : isPast
+                                ? "border-primary/40 bg-primary/15"
+                                : "border-muted-foreground/20 bg-muted/30"
+                            }`}
+                          />
+                          <span className="truncate">{topic.title}</span>
                           {isComplete && <CheckCircle2 className="h-3.5 w-3.5 text-[hsl(var(--success))] shrink-0 ml-auto" />}
                         </button>
                       </li>
                     );
                   })}
                 </ul>
-              </div>
+              </nav>
             </div>
           </div>
 
@@ -159,30 +170,41 @@ export default function DSARoadmapPage() {
           <div className="flex-1 space-y-5">
             {DSA_ROADMAP.map((topic, i) => {
               const tp = getTopicProgress(topic.id);
+              const isActive = activeTopicId === topic.id;
+              // Distance from active for fade effect
+              const distance = Math.abs(i - activeIndex);
+              const opacity = isActive ? 1 : distance === 1 ? 0.7 : distance === 2 ? 0.45 : 0.3;
+              const scale = isActive ? 1 : 0.98;
 
               return (
-                <motion.div
+                <div
                   key={topic.id}
                   ref={(el) => { topicRefs.current[topic.id] = el; }}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.04 }}
                   id={`topic-${topic.id}`}
+                  className="transition-all duration-500 ease-out"
+                  style={{
+                    opacity,
+                    transform: `scale(${scale})`,
+                  }}
                 >
                   <Link
                     to={`/dsa/${topic.id}`}
-                    className={`group block rounded-xl border bg-card p-5 transition-all hover:border-primary/30 hover:glow-gold-sm ${
-                      activeTopicId === topic.id ? "border-primary/20" : "border-border"
+                    className={`group block rounded-xl border bg-card p-5 transition-all duration-300 hover:opacity-100 hover:scale-100 hover:border-primary/40 hover:glow-gold-sm ${
+                      isActive ? "border-primary/30 glow-gold-sm" : "border-border"
                     }`}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-1">
-                          <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary/10 text-primary text-sm font-bold shrink-0">
+                          <div className={`flex items-center justify-center h-9 w-9 rounded-lg text-sm font-bold shrink-0 transition-colors duration-300 ${
+                            isActive ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary"
+                          }`}>
                             {i + 1}
                           </div>
                           <div>
-                            <h2 className="text-lg font-bold group-hover:text-primary transition-colors">{topic.title}</h2>
+                            <h2 className={`text-lg font-bold transition-colors duration-300 ${
+                              isActive ? "text-primary" : "group-hover:text-primary"
+                            }`}>{topic.title}</h2>
                             <p className="text-sm text-muted-foreground">{topic.description}</p>
                           </div>
                         </div>
@@ -206,7 +228,7 @@ export default function DSARoadmapPage() {
                       <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors mt-1 ml-4 shrink-0" />
                     </div>
                   </Link>
-                </motion.div>
+                </div>
               );
             })}
           </div>
