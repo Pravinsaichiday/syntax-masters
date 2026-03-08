@@ -52,7 +52,7 @@ export default function Navbar() {
                 <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="text-sm text-muted-foreground">Dashboard</Link>
                 <Link to="/problems" onClick={() => setMenuOpen(false)} className="text-sm text-muted-foreground">Problems</Link>
                 <Link to="/leaderboard" onClick={() => setMenuOpen(false)} className="text-sm text-muted-foreground">Leaderboard</Link>
-                <Link to="/contests" onClick={() => setMenuOpen(false)} className="text-sm text-muted-foreground">Contests</Link>
+                <Link to="/dsa" onClick={() => setMenuOpen(false)} className="text-sm text-muted-foreground">DSA Roadmap</Link>
                 <Link to={`/profile/${profile?.username || profile?.user_id}`} onClick={() => setMenuOpen(false)} className="text-sm text-muted-foreground">Profile</Link>
                 <Button variant="ghost" size="sm" onClick={() => { logout(); navigate("/"); setMenuOpen(false); }}>Log Out</Button>
               </>

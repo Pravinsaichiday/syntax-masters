@@ -73,7 +73,8 @@ function AppRoutes() {
         <Route path="/problem/:id" element={<ProblemPage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/profile/:username" element={<ProfilePage />} />
-        <Route path="/contests" element={<ContestsPage />} />
+        <Route path="/dsa" element={<DSARoadmapPage />} />
+        <Route path="/dsa/:topicId" element={<DSATopicPage />} />
         <Route path="/learn-python" element={<LearnPythonPage />} />
         <Route path="/learn-python/:topicId" element={<PythonTopicPage />} />
         <Route path="/admin" element={<AdminDashboardPage />} />
