@@ -63,7 +63,7 @@ export const LEARNING_TRACKS: LearningTrack[] = [
     color: "from-green-500/10 to-green-600/5",
     totalProblems: 100,
     topics: ["Arrays", "Strings", "Trees", "DP", "Graphs"],
-    route: "/problems?difficulty=Intermediate",
+    route: "/learn/interview-prep",
     difficulty: "Easy → Intermediate",
   },
   {
