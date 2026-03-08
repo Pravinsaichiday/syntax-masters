@@ -227,9 +227,7 @@ export default function DSATopicPage() {
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div className="flex-1">
-              <h1 className="text-xl font-bold flex items-center gap-2">
-                <span className="text-2xl">{topic.icon}</span> {topic.title}
-              </h1>
+              <h1 className="text-xl font-bold">{topic.title}</h1>
               <p className="text-sm text-muted-foreground">{topic.description}</p>
             </div>
           </div>
