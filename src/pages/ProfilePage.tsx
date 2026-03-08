@@ -15,9 +15,12 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 export default function ProfilePage() {
   const { username } = useParams();
-  const { profile: currentProfile, updateProfile } = useAuth();
+  const { profile: currentProfile, updateProfile, refreshProfile } = useAuth();
   const [editingUsername, setEditingUsername] = useState(false);
   const [newUsername, setNewUsername] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
 
   const { data: dbProfile } = useQuery({
     queryKey: ["profile", username],
