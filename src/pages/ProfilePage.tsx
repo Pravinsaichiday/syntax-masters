@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import BadgesDisplay from "@/components/BadgesDisplay";
 
 export default function ProfilePage() {
   const { username } = useParams();
