@@ -1,3 +1,5 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
@@ -128,6 +130,16 @@ Be strict but fair. If the code logic is correct for all test cases, give Accept
         testCasesTotal: sampleCases?.length || 0,
       };
     }
+
+    // Track usage
+    try {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const sb = createClient(supabaseUrl, serviceRoleKey);
+      const { data: countRow } = await sb.from('admin_settings').select('value').eq('key', 'gemini_usage_count').single();
+      const current = parseInt(countRow?.value || '0');
+      await sb.from('admin_settings').update({ value: String(current + 1) }).eq('key', 'gemini_usage_count');
+    } catch (e) { console.error('Usage tracking error:', e); }
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
