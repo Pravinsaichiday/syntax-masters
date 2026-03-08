@@ -180,12 +180,7 @@ export default function ProblemsPage() {
             <div className="px-5 py-12 text-center text-muted-foreground">No problems found.</div>
           ) : (
             filtered.map((p, i) => (
-              <motion.div
-                key={p.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: Math.min(i * 0.02, 0.5) }}
-              >
+              <div key={`${p.id}-${i}`}>
                 <Link
                   to={`/problem/${p.id}`}
                   className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-4 border-b border-border px-5 py-4 transition-colors last:border-0 hover:bg-surface-2"
@@ -204,7 +199,7 @@ export default function ProblemsPage() {
                   <span className="text-sm text-muted-foreground hidden sm:block">{p.acceptance}%</span>
                   <span className="text-sm text-primary font-medium">+{p.xpReward}</span>
                 </Link>
-              </motion.div>
+              </div>
             ))
           )}
         </div>
