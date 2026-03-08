@@ -25,6 +25,7 @@ import LearnTrackPage from "./pages/LearnTrackPage";
 import TrackTopicPage from "./pages/TrackTopicPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import MaintenancePage from "./pages/MaintenancePage";
+import NotebookPage from "./pages/NotebookPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
