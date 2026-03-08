@@ -594,9 +594,9 @@ export const PROBLEM_STATS = {
   total: ALL_PROBLEMS.length,
   byDifficulty: {
     "Very Easy": VERY_EASY.length,
-    "Easy": EASY.length,
-    "Basic": BASIC.length,
-    "Intermediate": INTERMEDIATE.length,
+    "Easy": EASY.length + EASY_EXTRA.length,
+    "Basic": BASIC.length + BASIC_EXTRA.length,
+    "Intermediate": INTERMEDIATE.length + INTERMEDIATE_EXTRA.length,
     "Advanced": ADVANCED.length,
   },
 };
