@@ -1,17 +1,29 @@
 import Navbar from "@/components/Navbar";
-import { PROBLEMS, TOPICS } from "@/data/mockData";
+import { ALL_PROBLEMS, EXPANDED_TOPICS, type Difficulty } from "@/data/problemsDatabase";
+import { LEARNING_TRACKS } from "@/data/learningTracks";
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Search, BookOpen, Lock, Unlock, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
+const DIFFICULTIES: (Difficulty | "All")[] = ["All", "Very Easy", "Easy", "Basic", "Intermediate", "Advanced"];
+
+const DIFF_COLORS: Record<Difficulty, string> = {
+  "Very Easy": "bg-emerald-500/10 text-emerald-400",
+  "Easy": "bg-success/10 text-success",
+  "Basic": "bg-sky-500/10 text-sky-400",
+  "Intermediate": "bg-primary/10 text-primary",
+  "Advanced": "bg-destructive/10 text-destructive",
+};
+
 export default function ProblemsPage() {
+  const [searchParams] = useSearchParams();
   const [search, setSearch] = useState("");
-  const [difficulty, setDifficulty] = useState<string>("All");
-  const [topic, setTopic] = useState<string>("All");
+  const [difficulty, setDifficulty] = useState<string>(searchParams.get("difficulty") || "All");
+  const [topic, setTopic] = useState<string>(searchParams.get("topic") || "All");
 
   const { data: settings } = useQuery({
     queryKey: ["admin-settings"],
@@ -24,7 +36,7 @@ export default function ProblemsPage() {
   const pythonLocked = settings?.find((s: any) => s.key === "python_locked")?.value === "true";
 
   const filtered = useMemo(() => {
-    return PROBLEMS.filter((p) => {
+    return ALL_PROBLEMS.filter((p) => {
       if (search && !p.title.toLowerCase().includes(search.toLowerCase())) return false;
       if (difficulty !== "All" && p.difficulty !== difficulty) return false;
       if (topic !== "All" && !p.topics.includes(topic)) return false;
@@ -36,34 +48,34 @@ export default function ProblemsPage() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container mx-auto px-4 py-8">
-        <h1 className="mb-6 text-2xl font-bold">Problem Set</h1>
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Problem Set</h1>
+          <span className="text-sm text-muted-foreground">{ALL_PROBLEMS.length} problems</span>
+        </div>
 
-        {/* Learn Python Section */}
+        {/* Learning Tracks */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <Link
-            to="/learn-python"
-            className="group flex items-center justify-between rounded-xl border border-primary/30 bg-gradient-to-r from-primary/5 to-primary/10 p-6 transition-all hover:border-primary/50 hover:glow-gold-sm"
-          >
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                <BookOpen className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-lg font-bold">Learn Python from Scratch</h2>
-                  {pythonLocked ? (
-                    <Lock className="h-4 w-4 text-destructive" />
-                  ) : (
-                    <Unlock className="h-4 w-4 text-success" />
-                  )}
+          <h2 className="mb-3 text-sm font-semibold text-muted-foreground uppercase tracking-wider">Learning Tracks</h2>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {LEARNING_TRACKS.map((track) => (
+              <Link
+                key={track.id}
+                to={track.route}
+                className="group flex items-start gap-3 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:glow-gold-sm"
+              >
+                <span className="text-2xl">{track.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold truncate">{track.title}</h3>
+                    {track.id === "learn-python" && (pythonLocked ? <Lock className="h-3 w-3 text-destructive flex-shrink-0" /> : <Unlock className="h-3 w-3 text-success flex-shrink-0" />)}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">{track.description}</p>
+                  <p className="text-xs text-primary mt-1">{track.difficulty}</p>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  20 topics · 60 hands-on problems · Beginner to Advanced
-                </p>
-              </div>
-            </div>
-            <ArrowRight className="h-5 w-5 text-primary transition-transform group-hover:translate-x-1" />
-          </Link>
+                <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary flex-shrink-0 mt-1" />
+              </Link>
+            ))}
+          </div>
         </motion.div>
 
         {/* Filters */}
@@ -78,11 +90,11 @@ export default function ProblemsPage() {
             />
           </div>
           <div className="flex gap-2 overflow-x-auto">
-            {["All", "Easy", "Medium", "Hard"].map((d) => (
+            {DIFFICULTIES.map((d) => (
               <button
                 key={d}
                 onClick={() => setDifficulty(d)}
-                className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                   difficulty === d
                     ? "bg-primary text-primary-foreground"
                     : "bg-surface-2 text-muted-foreground hover:text-foreground"
@@ -104,7 +116,7 @@ export default function ProblemsPage() {
           >
             All Topics
           </button>
-          {TOPICS.slice(0, 12).map((t) => (
+          {EXPANDED_TOPICS.map((t) => (
             <button
               key={t}
               onClick={() => setTopic(t === topic ? "All" : t)}
@@ -133,7 +145,7 @@ export default function ProblemsPage() {
                 key={p.id}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: i * 0.03 }}
+                transition={{ delay: Math.min(i * 0.02, 0.5) }}
               >
                 <Link
                   to={`/problem/${p.id}`}
@@ -141,17 +153,13 @@ export default function ProblemsPage() {
                 >
                   <div>
                     <div className="font-medium">{p.title}</div>
-                    <div className="mt-1 flex gap-1">
+                    <div className="mt-1 flex gap-1 flex-wrap">
                       {p.topics.slice(0, 3).map((t) => (
                         <span key={t} className="rounded bg-surface-3 px-1.5 py-0.5 text-[10px] text-muted-foreground">{t}</span>
                       ))}
                     </div>
                   </div>
-                  <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${
-                    p.difficulty === "Easy" ? "bg-success/10 text-success" :
-                    p.difficulty === "Medium" ? "bg-primary/10 text-primary" :
-                    "bg-destructive/10 text-destructive"
-                  }`}>
+                  <span className={`rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap ${DIFF_COLORS[p.difficulty as Difficulty] || ""}`}>
                     {p.difficulty}
                   </span>
                   <span className="text-sm text-muted-foreground hidden sm:block">{p.acceptance}%</span>
@@ -160,6 +168,10 @@ export default function ProblemsPage() {
               </motion.div>
             ))
           )}
+        </div>
+
+        <div className="mt-4 text-center text-sm text-muted-foreground">
+          Showing {filtered.length} of {ALL_PROBLEMS.length} problems
         </div>
       </div>
     </div>

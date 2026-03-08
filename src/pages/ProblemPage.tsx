@@ -32,9 +32,9 @@ export default function ProblemPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, updateProfile, profile } = useAuth();
-  const problem = PROBLEMS.find((p) => p.id === id);
-  const currentIndex = PROBLEMS.findIndex((p) => p.id === id);
-  const nextProblem = currentIndex >= 0 && currentIndex < PROBLEMS.length - 1 ? PROBLEMS[currentIndex + 1] : null;
+  const problem = ALL_PROBLEMS.find((p) => p.id === id);
+  const currentIndex = ALL_PROBLEMS.findIndex((p) => p.id === id);
+  const nextProblem = currentIndex >= 0 && currentIndex < ALL_PROBLEMS.length - 1 ? ALL_PROBLEMS[currentIndex + 1] : null;
 
   const [language, setLanguage] = useState("C++");
   const [code, setCode] = useState(LANG_MAP["C++"].template);

@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-const dailyProblems = PROBLEMS.slice(0, 3);
+const dailyProblems = ALL_PROBLEMS.filter(p => p.difficulty === "Easy" || p.difficulty === "Basic").slice(0, 3);
 
 export default function DashboardPage() {
   const { profile, user, isAuthenticated, loading } = useAuth();
