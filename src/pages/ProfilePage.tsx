@@ -419,6 +419,9 @@ export default function ProfilePage() {
             )}
           </div>
         </div>
+        {/* Badges */}
+        {isOwnProfile && <BadgesDisplay />}
+
         {/* Solved Problems */}
         {(solvedProblems.length > 0 || solvedPython.length > 0) && (
           <div className="mb-8 rounded-xl border border-border bg-card p-6">
