@@ -1,27 +1,47 @@
 import Navbar from "@/components/Navbar";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { DSA_ROADMAP, getAllDSAProblems } from "@/data/dsaRoadmap";
+import { DSA_ROADMAP, DSA_TOPIC_TO_DB_TOPICS } from "@/data/dsaRoadmap";
+import { ALL_PROBLEMS } from "@/data/problemsDatabase";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, ChevronRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+
+// Build a map of DSA topic ID -> matching problems from main database
+function getTopicProblems(topicId: string) {
+  const dbTopics = DSA_TOPIC_TO_DB_TOPICS[topicId] || [];
+  return ALL_PROBLEMS.filter(p => p.topics.some(t => dbTopics.includes(t)));
+}
 
 export default function DSARoadmapPage() {
   const { user } = useAuth();
   const [activeTopicId, setActiveTopicId] = useState<string>(DSA_ROADMAP[0]?.id || "");
   const topicRefs = useRef<Record<string, HTMLElement | null>>({});
-  const sidebarDotsRef = useRef<Record<string, HTMLElement | null>>({});
 
-  const { data: progress = [] } = useQuery({
+  const { data: submissions = [] } = useQuery({
+    queryKey: ["all-submissions", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data } = await supabase
+        .from("submissions")
+        .select("problem_id, verdict")
+        .eq("user_id", user.id)
+        .eq("verdict", "Accepted");
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  const { data: dsaProgress = [] } = useQuery({
     queryKey: ["dsa-progress-all", user?.id],
     queryFn: async () => {
       if (!user) return [];
       const { data } = await supabase
         .from("dsa_progress")
-        .select("*")
+        .select("problem_id")
         .eq("user_id", user.id)
         .eq("completed", true);
       return data || [];
@@ -29,40 +49,56 @@ export default function DSARoadmapPage() {
     enabled: !!user,
   });
 
-  const totalProblems = getAllDSAProblems().length;
-  const solvedIds = new Set(progress.map((p: any) => p.problem_id));
-  const overallPercent = totalProblems > 0 ? Math.round((solvedIds.size / totalProblems) * 100) : 0;
+  // Combine solved IDs from both submissions and DSA progress
+  const solvedIds = useMemo(() => {
+    const ids = new Set<string>();
+    submissions.forEach((s: any) => ids.add(s.problem_id));
+    dsaProgress.forEach((p: any) => ids.add(p.problem_id));
+    return ids;
+  }, [submissions, dsaProgress]);
 
-  const getTopicProgress = (topicId: string) => {
-    const topic = DSA_ROADMAP.find(t => t.id === topicId);
-    if (!topic) return { solved: 0, total: 0, percent: 0 };
-    let total = 0;
-    let solved = 0;
-    for (const sub of topic.subtopics) {
-      for (const p of sub.problems) {
-        total++;
-        if (solvedIds.has(p.id)) solved++;
-      }
+  // Pre-compute topic stats
+  const topicStats = useMemo(() => {
+    const stats: Record<string, { total: number; solved: number; percent: number }> = {};
+    let totalAll = 0;
+    let solvedAll = 0;
+
+    for (const topic of DSA_ROADMAP) {
+      const problems = getTopicProblems(topic.id);
+      // Also include DSA-specific problems
+      const dsaProblems = topic.subtopics.flatMap(s => s.problems);
+      const allIds = new Set([...problems.map(p => p.id), ...dsaProblems.map(p => p.id)]);
+      const total = allIds.size;
+      let solved = 0;
+      allIds.forEach(id => { if (solvedIds.has(id)) solved++; });
+      const percent = total > 0 ? Math.round((solved / total) * 100) : 0;
+      stats[topic.id] = { total, solved, percent };
+      totalAll += total;
+      solvedAll += solved;
     }
-    return { solved, total, percent: total > 0 ? Math.round((solved / total) * 100) : 0 };
-  };
+
+    stats["__overall"] = {
+      total: totalAll,
+      solved: solvedAll,
+      percent: totalAll > 0 ? Math.round((solvedAll / totalAll) * 100) : 0,
+    };
+    return stats;
+  }, [solvedIds]);
+
+  const overall = topicStats["__overall"] || { total: 0, solved: 0, percent: 0 };
 
   // Scrollspy
   const handleScroll = useCallback(() => {
-    // If near bottom of page, activate the last topic
     const atBottom = (window.innerHeight + window.scrollY) >= (document.body.scrollHeight - 100);
     if (atBottom) {
       setActiveTopicId(DSA_ROADMAP[DSA_ROADMAP.length - 1]?.id || "");
       return;
     }
-
     const scrollY = window.scrollY + 220;
     let currentId = DSA_ROADMAP[0]?.id || "";
     for (const topic of DSA_ROADMAP) {
       const el = topicRefs.current[topic.id];
-      if (el && el.offsetTop <= scrollY) {
-        currentId = topic.id;
-      }
+      if (el && el.offsetTop <= scrollY) currentId = topic.id;
     }
     setActiveTopicId(currentId);
   }, []);
@@ -80,13 +116,9 @@ export default function DSARoadmapPage() {
 
   const activeIndex = DSA_ROADMAP.findIndex(t => t.id === activeTopicId);
   const totalTopics = DSA_ROADMAP.length;
-
-  // Calculate line height based on dot positions for accuracy
   const getLineHeight = () => {
     if (totalTopics <= 1) return "0px";
-    // Use percentage that maps first dot to last dot
-    const percent = ((activeIndex + 1) / totalTopics) * 100;
-    return `${percent}%`;
+    return `${((activeIndex + 1) / totalTopics) * 100}%`;
   };
 
   return (
@@ -98,14 +130,16 @@ export default function DSARoadmapPage() {
           <h1 className="text-3xl font-bold mb-2">
             DSA <span className="text-gradient-gold">Roadmap</span>
           </h1>
-          <p className="text-muted-foreground mb-4">Master Data Structures & Algorithms — 12 core topics with 40+ real problems.</p>
+          <p className="text-muted-foreground mb-4">
+            Master Data Structures & Algorithms — 12 core topics with {overall.total}+ real problems.
+          </p>
           <div className="rounded-xl border border-border bg-card p-5 glow-gold-sm">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium">Overall Progress</span>
-              <span className="text-sm font-bold text-primary">{overallPercent}%</span>
+              <span className="text-sm font-bold text-primary">{overall.percent}%</span>
             </div>
-            <Progress value={overallPercent} className="h-3" />
-            <p className="text-xs text-muted-foreground mt-2">{solvedIds.size} / {totalProblems} problems solved</p>
+            <Progress value={overall.percent} className="h-3" />
+            <p className="text-xs text-muted-foreground mt-2">{overall.solved} / {overall.total} problems solved</p>
           </div>
         </motion.div>
 
@@ -116,20 +150,14 @@ export default function DSARoadmapPage() {
             <div className="sticky top-20">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4 pl-7">Topics</p>
               <nav className="relative">
-                {/* Background track */}
                 <div className="absolute left-[10px] top-0 bottom-0 w-[3px] rounded-full bg-border" />
-                {/* Active progress fill */}
                 <div
                   className="absolute left-[10px] top-0 w-[3px] rounded-full bg-primary"
-                  style={{
-                    height: getLineHeight(),
-                    transition: "height 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                  }}
+                  style={{ height: getLineHeight(), transition: "height 0.4s cubic-bezier(0.4, 0, 0.2, 1)" }}
                 />
-
                 <ul className="relative space-y-0">
                   {DSA_ROADMAP.map((topic, i) => {
-                    const tp = getTopicProgress(topic.id);
+                    const tp = topicStats[topic.id] || { solved: 0, total: 0, percent: 0 };
                     const isActive = activeTopicId === topic.id;
                     const isComplete = tp.percent === 100;
                     const hasProgress = tp.solved > 0;
@@ -140,28 +168,18 @@ export default function DSARoadmapPage() {
                         <button
                           onClick={() => scrollToTopic(topic.id)}
                           className={`relative flex items-center w-full text-left py-2.5 pl-8 pr-2 rounded-r-lg text-[13px] leading-tight transition-all duration-300 ${
-                            isActive
-                              ? "text-primary font-bold bg-primary/8"
-                              : isPast
-                              ? "text-foreground/70 font-medium"
+                            isActive ? "text-primary font-bold bg-primary/8"
+                              : isPast ? "text-foreground/70 font-medium"
                               : "text-muted-foreground/60 hover:text-muted-foreground"
                           }`}
                         >
-                          {/* Dot on the line */}
-                          <span
-                            ref={(el) => { sidebarDotsRef.current[topic.id] = el; }}
-                            className={`absolute left-[4px] h-[14px] w-[14px] rounded-full border-[3px] transition-all duration-300 ${
-                              isComplete
-                                ? "border-[hsl(var(--success))] bg-[hsl(var(--success))] scale-110"
-                                : isActive
-                                ? "border-primary bg-primary scale-125 shadow-[0_0_8px_hsl(var(--primary)/0.5)]"
-                                : hasProgress
-                                ? "border-primary/60 bg-primary/25"
-                                : isPast
-                                ? "border-primary/40 bg-primary/15"
-                                : "border-muted-foreground/20 bg-muted/30"
-                            }`}
-                          />
+                          <span className={`absolute left-[4px] h-[14px] w-[14px] rounded-full border-[3px] transition-all duration-300 ${
+                            isComplete ? "border-[hsl(var(--success))] bg-[hsl(var(--success))] scale-110"
+                              : isActive ? "border-primary bg-primary scale-125 shadow-[0_0_8px_hsl(var(--primary)/0.5)]"
+                              : hasProgress ? "border-primary/60 bg-primary/25"
+                              : isPast ? "border-primary/40 bg-primary/15"
+                              : "border-muted-foreground/20 bg-muted/30"
+                          }`} />
                           <span className="truncate">{topic.title}</span>
                           {isComplete && <CheckCircle2 className="h-3.5 w-3.5 text-[hsl(var(--success))] shrink-0 ml-auto" />}
                         </button>
@@ -176,9 +194,8 @@ export default function DSARoadmapPage() {
           {/* Topic cards */}
           <div className="flex-1 space-y-5">
             {DSA_ROADMAP.map((topic, i) => {
-              const tp = getTopicProgress(topic.id);
+              const tp = topicStats[topic.id] || { solved: 0, total: 0, percent: 0 };
               const isActive = activeTopicId === topic.id;
-              // Distance from active for fade effect
               const distance = Math.abs(i - activeIndex);
               const opacity = isActive ? 1 : distance === 1 ? 0.7 : distance === 2 ? 0.45 : 0.3;
               const scale = isActive ? 1 : 0.98;
@@ -189,10 +206,7 @@ export default function DSARoadmapPage() {
                   ref={(el) => { topicRefs.current[topic.id] = el; }}
                   id={`topic-${topic.id}`}
                   className="transition-all duration-500 ease-out"
-                  style={{
-                    opacity,
-                    transform: `scale(${scale})`,
-                  }}
+                  style={{ opacity, transform: `scale(${scale})` }}
                 >
                   <Link
                     to={`/dsa/${topic.id}`}
