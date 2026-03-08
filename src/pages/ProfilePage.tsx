@@ -68,6 +68,21 @@ export default function ProfilePage() {
     enabled: !!userId,
   });
 
+  // DSA progress for activity
+  const { data: dsaProgress = [] } = useQuery({
+    queryKey: ["user-dsa-progress", userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data } = await supabase
+        .from("dsa_progress")
+        .select("created_at, completed")
+        .eq("user_id", userId)
+        .eq("completed", true);
+      return data || [];
+    },
+    enabled: !!userId,
+  });
+
   // Solved problems list
   const solvedProblems = useMemo(() => {
     const accepted = new Set<string>();
