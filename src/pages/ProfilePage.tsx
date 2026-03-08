@@ -105,19 +105,37 @@ export default function ProfilePage() {
     const days: { date: string; count: number }[] = [];
     const counts: Record<string, number> = {};
     
+    // Count submissions
     submissions.forEach((s: any) => {
       const date = new Date(s.created_at).toISOString().split("T")[0];
       counts[date] = (counts[date] || 0) + 1;
     });
 
-    for (let i = 364; i >= 0; i--) {
+    // Count DSA progress
+    dsaProgress.forEach((s: any) => {
+      const date = new Date(s.created_at).toISOString().split("T")[0];
+      counts[date] = (counts[date] || 0) + 1;
+    });
+
+    // Count Python progress
+    pythonProgress.forEach((s: any) => {
+      const date = new Date(s.created_at).toISOString().split("T")[0];
+      counts[date] = (counts[date] || 0) + 1;
+    });
+
+    const today = new Date();
+    // Calculate how many days to show: enough to fill complete weeks up to today
+    const dayOfWeek = today.getDay(); // 0=Sun
+    const totalDays = 52 * 7 + dayOfWeek + 1; // 52 full weeks + remaining days in current week
+
+    for (let i = totalDays - 1; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
       const key = date.toISOString().split("T")[0];
       days.push({ date: key, count: counts[key] || 0 });
     }
     return days;
-  }, [submissions]);
+  }, [submissions, dsaProgress, pythonProgress]);
 
   // Real topic mastery from submissions
   const topicMastery = useMemo(() => {
