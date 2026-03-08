@@ -277,13 +277,13 @@ export default function AdminDashboardPage() {
 
           {/* Maintenance Mode */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-xl border border-border bg-card p-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 {maintenanceMode ? <ServerOff className="h-6 w-6 text-destructive" /> : <Server className="h-6 w-6 text-success" />}
                 <div>
                   <h3 className="font-semibold">Server Status</h3>
                   <p className="text-sm text-muted-foreground">
-                    {maintenanceMode ? "Maintenance mode is ON" : "Server is running normally"}
+                    {maintenanceMode ? "Maintenance mode is ON — users see maintenance page" : "Server is running normally"}
                   </p>
                 </div>
               </div>
@@ -294,6 +294,24 @@ export default function AdminDashboardPage() {
               >
                 <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white transition-transform ${maintenanceMode ? "left-7" : "left-0.5"}`} />
               </button>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground">Maintenance Message (shown to users)</label>
+              <textarea
+                value={maintenanceMessage}
+                onChange={e => setMaintenanceMessage(e.target.value)}
+                rows={3}
+                className="w-full rounded-lg border border-border bg-surface-2 p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+                placeholder="Explain why the server is under maintenance..."
+              />
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={loading}
+                onClick={() => updateSetting("maintenance_message", maintenanceMessage)}
+              >
+                Save Message
+              </Button>
             </div>
           </motion.div>
 
