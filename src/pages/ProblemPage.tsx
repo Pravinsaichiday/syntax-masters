@@ -96,7 +96,8 @@ export default function ProblemPage() {
 
         if (v === "Accepted") {
           toast.success(`Accepted! +${problem.xpReward} XP`);
-          // Save submission & update profile
+          fireConfetti();
+          setShowSuccess(true);
           if (user) {
             await supabase.from("submissions").insert({
               user_id: user.id,
