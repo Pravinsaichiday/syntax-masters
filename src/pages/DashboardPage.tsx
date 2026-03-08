@@ -45,10 +45,23 @@ export default function DashboardPage() {
     );
   }
 
+  // Calculate display streak: if last_solved_at is older than yesterday, streak is effectively 0
+  const displayStreak = (() => {
+    const lastSolved = (profile as any).last_solved_at;
+    if (!lastSolved) return 0;
+    const lastDate = new Date(lastSolved);
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    lastDate.setUTCHours(0, 0, 0, 0);
+    const diffDays = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays <= 1) return profile.streak;
+    return 0;
+  })();
+
   const stats = [
     { icon: Target, label: "Problems Solved", value: profile.solved_count, color: "text-primary" },
     { icon: Zap, label: "XP Earned", value: profile.xp.toLocaleString(), color: "text-primary" },
-    { icon: Flame, label: "Day Streak", value: profile.streak, color: "text-destructive" },
+    { icon: Flame, label: "Day Streak", value: displayStreak, color: "text-destructive" },
     { icon: TrendingUp, label: "Leaderboard Rank", value: leaderboardRank ? `#${leaderboardRank}` : "—", color: "text-info" },
   ];
 
