@@ -68,6 +68,21 @@ export default function ProfilePage() {
     enabled: !!userId,
   });
 
+  // DSA progress for activity
+  const { data: dsaProgress = [] } = useQuery({
+    queryKey: ["user-dsa-progress", userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data } = await supabase
+        .from("dsa_progress")
+        .select("created_at, completed")
+        .eq("user_id", userId)
+        .eq("completed", true);
+      return data || [];
+    },
+    enabled: !!userId,
+  });
+
   // Solved problems list
   const solvedProblems = useMemo(() => {
     const accepted = new Set<string>();
@@ -90,19 +105,37 @@ export default function ProfilePage() {
     const days: { date: string; count: number }[] = [];
     const counts: Record<string, number> = {};
     
+    // Count submissions
     submissions.forEach((s: any) => {
       const date = new Date(s.created_at).toISOString().split("T")[0];
       counts[date] = (counts[date] || 0) + 1;
     });
 
-    for (let i = 364; i >= 0; i--) {
+    // Count DSA progress
+    dsaProgress.forEach((s: any) => {
+      const date = new Date(s.created_at).toISOString().split("T")[0];
+      counts[date] = (counts[date] || 0) + 1;
+    });
+
+    // Count Python progress
+    pythonProgress.forEach((s: any) => {
+      const date = new Date(s.created_at).toISOString().split("T")[0];
+      counts[date] = (counts[date] || 0) + 1;
+    });
+
+    const today = new Date();
+    // Calculate how many days to show: enough to fill complete weeks up to today
+    const dayOfWeek = today.getDay(); // 0=Sun
+    const totalDays = 52 * 7 + dayOfWeek + 1; // 52 full weeks + remaining days in current week
+
+    for (let i = totalDays - 1; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
       const key = date.toISOString().split("T")[0];
       days.push({ date: key, count: counts[key] || 0 });
     }
     return days;
-  }, [submissions]);
+  }, [submissions, dsaProgress, pythonProgress]);
 
   // Real topic mastery from submissions
   const topicMastery = useMemo(() => {
@@ -334,14 +367,14 @@ export default function ProfilePage() {
           <h2 className="mb-4 text-lg font-semibold flex items-center gap-2"><Calendar className="h-5 w-5 text-primary" />Activity</h2>
           <div className="overflow-x-auto">
             <div className="flex gap-[3px]" style={{ minWidth: "750px" }}>
-              {Array.from({ length: 52 }, (_, week) => (
+              {Array.from({ length: Math.ceil(heatmap.length / 7) }, (_, week) => (
                 <div key={week} className="flex flex-col gap-[3px]">
                   {Array.from({ length: 7 }, (_, day) => {
                     const idx = week * 7 + day;
                     const d = heatmap[idx];
                     if (!d) return <div key={day} className="h-3 w-3" />;
                     const intensity = d.count === 0 ? "bg-surface-3" : d.count <= 2 ? "bg-primary/20" : d.count <= 4 ? "bg-primary/40" : d.count <= 6 ? "bg-primary/60" : "bg-primary";
-                    return <div key={day} className={`h-3 w-3 rounded-sm ${intensity}`} title={`${d.date}: ${d.count} submissions`} />;
+                    return <div key={day} className={`h-3 w-3 rounded-sm ${intensity}`} title={`${d.date}: ${d.count} activities`} />;
                   })}
                 </div>
               ))}
