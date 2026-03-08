@@ -120,7 +120,7 @@ export default function PythonTopicPage() {
       );
 
       if (verdict === "Accepted") {
-        toast.success(`Correct! +${selectedQuestion.xpReward} XP`);
+        const alreadySolved = isCompleted(selectedQuestion.id);
         
         // Save progress
         await supabase.from("python_progress").upsert({
@@ -132,14 +132,22 @@ export default function PythonTopicPage() {
           code,
         }, { onConflict: "user_id,topic_id,question_id" });
 
-        if (profile) {
+        if (!alreadySolved && profile) {
           await updateProfile({
             xp: profile.xp + selectedQuestion.xpReward,
             solved_count: profile.solved_count + 1,
           });
+          setEarnedXp(selectedQuestion.xpReward);
+        } else {
+          setEarnedXp(0);
         }
 
         queryClient.invalidateQueries({ queryKey: ["python-progress"] });
+        
+        // Fire celebration
+        fireConfetti();
+        setShowSuccess(true);
+        toast.success(alreadySolved ? "Correct!" : `Correct! +${selectedQuestion.xpReward} XP`);
       } else {
         toast.error(verdict || "Try again!");
       }
