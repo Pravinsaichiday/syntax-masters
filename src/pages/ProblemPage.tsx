@@ -284,8 +284,8 @@ export default function ProblemPage() {
 
             {/* Output Format */}
             <div className="mt-3 rounded-lg border border-border bg-surface-2 p-4">
-              <h3 className="text-sm font-semibold text-foreground mb-2">📤 Output Format</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{problem.outputFormat}</p>
+              <h3 className="text-sm font-bold text-foreground mb-2">📤 Output Format</h3>
+              <p className="text-[13px] text-muted-foreground leading-relaxed">{problem.outputFormat}</p>
             </div>
 
             {/* Constraints */}
