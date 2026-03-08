@@ -101,7 +101,6 @@ export default function ProblemPage() {
       .then(({ data }) => {
         if (data && data.length > 0) {
           setAlreadySolved(true);
-          setApproachUnlocked(true);
           setCode(data[0].code);
           setLanguage(data[0].language);
         }
