@@ -581,8 +581,11 @@ const INTERMEDIATE_EXTRA: Problem[] = [
 export const ALL_PROBLEMS: Problem[] = [
   ...VERY_EASY,
   ...EASY,
+  ...EASY_EXTRA,
   ...BASIC,
+  ...BASIC_EXTRA,
   ...INTERMEDIATE,
+  ...INTERMEDIATE_EXTRA,
   ...ADVANCED,
 ];
 
