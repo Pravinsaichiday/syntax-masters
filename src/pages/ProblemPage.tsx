@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { PROBLEMS } from "@/data/mockData";
+import { ALL_PROBLEMS } from "@/data/problemsDatabase";
 import Navbar from "@/components/Navbar";
 import { useState, useCallback, useEffect } from "react";
 import Editor from "@monaco-editor/react";
@@ -32,9 +32,9 @@ export default function ProblemPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, updateProfile, profile } = useAuth();
-  const problem = PROBLEMS.find((p) => p.id === id);
-  const currentIndex = PROBLEMS.findIndex((p) => p.id === id);
-  const nextProblem = currentIndex >= 0 && currentIndex < PROBLEMS.length - 1 ? PROBLEMS[currentIndex + 1] : null;
+  const problem = ALL_PROBLEMS.find((p) => p.id === id);
+  const currentIndex = ALL_PROBLEMS.findIndex((p) => p.id === id);
+  const nextProblem = currentIndex >= 0 && currentIndex < ALL_PROBLEMS.length - 1 ? ALL_PROBLEMS[currentIndex + 1] : null;
 
   const [language, setLanguage] = useState("C++");
   const [code, setCode] = useState(LANG_MAP["C++"].template);
@@ -230,7 +230,7 @@ export default function ProblemPage() {
         {/* Left: Problem Description */}
         <div className="w-full overflow-y-auto border-r border-border p-6 lg:w-[45%]">
           <div className="mb-4 flex items-center gap-3">
-            <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${problem.difficulty === "Easy" ? "bg-success/10 text-success" : problem.difficulty === "Medium" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}>{problem.difficulty}</span>
+            <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${problem.difficulty === "Easy" || problem.difficulty === "Very Easy" ? "bg-success/10 text-success" : problem.difficulty === "Basic" || problem.difficulty === "Intermediate" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}>{problem.difficulty}</span>
             <span className="text-xs text-muted-foreground">{problem.source}</span>
             <span className="text-xs text-primary">+{problem.xpReward} XP</span>
             {alreadySolved && <span className="rounded-md bg-success/10 px-2 py-0.5 text-xs font-bold text-success">✓ Solved</span>}
