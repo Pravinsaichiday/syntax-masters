@@ -78,7 +78,7 @@ export default function ProfilePage() {
     });
     
     // We can derive topics from problem_id matching against PROBLEMS
-    const { PROBLEMS } = require("@/data/mockData");
+    
     uniqueProblems.forEach(pid => {
       const problem = PROBLEMS.find((p: any) => p.id === pid);
       if (problem) {
