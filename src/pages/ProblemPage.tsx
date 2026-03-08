@@ -302,7 +302,7 @@ export default function ProblemPage() {
             </div>
 
             {/* Sample Cases */}
-            <h3 className="mt-6 text-sm font-semibold text-foreground">Sample Cases</h3>
+            <h3 className="mt-6 text-base font-bold text-foreground">Sample Cases</h3>
             {problem.sampleCases.map((sc, i) => (
               <div key={i} className="mt-3 rounded-lg border border-border bg-surface-2 p-4">
                 <div className="mb-3">
