@@ -1,5 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { DSA_ROADMAP, type DSAProblem } from "@/data/dsaRoadmap";
+import { DSA_ROADMAP, DSA_TOPIC_TO_DB_TOPICS, type DSAProblem } from "@/data/dsaRoadmap";
+import { ALL_PROBLEMS } from "@/data/problemsDatabase";
 import Navbar from "@/components/Navbar";
 import { useState, useCallback } from "react";
 import Editor from "@monaco-editor/react";
