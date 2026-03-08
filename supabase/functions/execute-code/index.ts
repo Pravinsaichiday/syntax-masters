@@ -79,7 +79,7 @@ Respond in this exact JSON format only, no other text:
 
 Be strict but fair. If the code logic is correct for all test cases, give Accepted. If it has bugs, give Wrong Answer. If it would exceed typical time limits (2 seconds), give TLE. If it has syntax errors, give Compilation Error.`;
     } else if (mode === 'solution') {
-      const { constraints } = await req.json().catch(() => ({}));
+      // constraints already destructured from req.json() above
       prompt = `You are an expert competitive programmer. Provide a clean, optimal, well-commented solution in ${language} for the following problem.
 
 PROBLEM:
