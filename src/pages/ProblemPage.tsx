@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { PROBLEMS } from "@/data/mockData";
+import { ALL_PROBLEMS } from "@/data/problemsDatabase";
 import Navbar from "@/components/Navbar";
 import { useState, useCallback, useEffect } from "react";
 import Editor from "@monaco-editor/react";
