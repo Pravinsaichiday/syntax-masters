@@ -2,15 +2,35 @@ import { useAuth } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Flame, Target, TrendingUp, Zap, BookOpen, Trophy, ArrowRight } from "lucide-react";
+import { Flame, Target, TrendingUp, Zap, BookOpen, Trophy, ArrowRight, Map } from "lucide-react";
 import { PROBLEMS } from "@/data/mockData";
 import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const dailyProblems = PROBLEMS.slice(0, 3);
 
 export default function DashboardPage() {
-  const { profile, isAuthenticated, loading } = useAuth();
+  const { profile, user, isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
+
+  // Fetch leaderboard rank
+  const { data: leaderboardRank } = useQuery({
+    queryKey: ["leaderboard-rank", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from("profiles")
+        .select("user_id, xp")
+        .gt("solved_count", 0)
+        .order("xp", { ascending: false })
+        .limit(500);
+      if (!data) return null;
+      const idx = data.findIndex(p => p.user_id === user.id);
+      return idx >= 0 ? idx + 1 : null;
+    },
+    enabled: !!user,
+  });
 
   useEffect(() => {
     if (!loading && !isAuthenticated) navigate("/login");
@@ -29,7 +49,7 @@ export default function DashboardPage() {
     { icon: Target, label: "Problems Solved", value: profile.solved_count, color: "text-primary" },
     { icon: Zap, label: "XP Earned", value: profile.xp.toLocaleString(), color: "text-primary" },
     { icon: Flame, label: "Day Streak", value: profile.streak, color: "text-destructive" },
-    { icon: TrendingUp, label: "Global Rank", value: `#${profile.rank || "—"}`, color: "text-info" },
+    { icon: TrendingUp, label: "Leaderboard Rank", value: leaderboardRank ? `#${leaderboardRank}` : "—", color: "text-info" },
   ];
 
   return (
@@ -83,8 +103,8 @@ export default function DashboardPage() {
           <Link to="/problems" className="flex items-center gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/30">
             <BookOpen className="h-6 w-6 text-primary" /><div><div className="font-semibold">Practice</div><div className="text-sm text-muted-foreground">Solve problems by topic</div></div>
           </Link>
-          <Link to="/contests" className="flex items-center gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/30">
-            <Trophy className="h-6 w-6 text-primary" /><div><div className="font-semibold">Contests</div><div className="text-sm text-muted-foreground">Compete live</div></div>
+          <Link to="/dsa" className="flex items-center gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/30">
+            <Map className="h-6 w-6 text-primary" /><div><div className="font-semibold">DSA Roadmap</div><div className="text-sm text-muted-foreground">Master DSA step by step</div></div>
           </Link>
           <Link to="/leaderboard" className="flex items-center gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/30">
             <TrendingUp className="h-6 w-6 text-primary" /><div><div className="font-semibold">Leaderboard</div><div className="text-sm text-muted-foreground">See global rankings</div></div>
