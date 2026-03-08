@@ -244,7 +244,7 @@ export default function DSATopicPage() {
           {/* Progress */}
           <div className="mb-6 rounded-xl border border-border bg-card p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">{completedCount}/{allProblems.length} solved</span>
+              <span className="text-sm font-medium">{completedCount}/{totalCount} solved</span>
               <span className="text-sm font-bold text-primary">{progressPercent}%</span>
             </div>
             <Progress value={progressPercent} className="h-2.5" />
