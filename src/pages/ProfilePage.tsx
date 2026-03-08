@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { PROBLEMS } from "@/data/mockData";
 import { PYTHON_TOPICS } from "@/data/pythonTopics";
 import { motion } from "framer-motion";
-import { Target, Zap, Flame, TrendingUp, Calendar, Award, Pencil, Check, X, CheckCircle2, ExternalLink, BookOpen, Camera } from "lucide-react";
+import { Target, Zap, Flame, TrendingUp, Calendar, Award, Pencil, Check, X, CheckCircle2, ExternalLink, BookOpen, Camera, Trophy } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import BadgesDisplay from "@/components/BadgesDisplay";
 
 export default function ProfilePage() {
   const { username } = useParams();
@@ -418,6 +419,9 @@ export default function ProfilePage() {
             )}
           </div>
         </div>
+        {/* Badges */}
+        {isOwnProfile && <BadgesDisplay />}
+
         {/* Solved Problems */}
         {(solvedProblems.length > 0 || solvedPython.length > 0) && (
           <div className="mb-8 rounded-xl border border-border bg-card p-6">

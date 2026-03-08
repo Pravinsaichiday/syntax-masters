@@ -133,11 +133,87 @@ export type Database = {
         }
         Relationships: []
       }
+      notebook_entries: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      problem_notes: {
+        Row: {
+          approach_brute: string | null
+          approach_optimized: string | null
+          created_at: string
+          edge_cases: string | null
+          id: string
+          problem_id: string
+          revision_notes: string | null
+          space_complexity: string | null
+          time_complexity: string | null
+          understanding: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approach_brute?: string | null
+          approach_optimized?: string | null
+          created_at?: string
+          edge_cases?: string | null
+          id?: string
+          problem_id: string
+          revision_notes?: string | null
+          space_complexity?: string | null
+          time_complexity?: string | null
+          understanding?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approach_brute?: string | null
+          approach_optimized?: string | null
+          created_at?: string
+          edge_cases?: string | null
+          id?: string
+          problem_id?: string
+          revision_notes?: string | null
+          space_complexity?: string | null
+          time_complexity?: string | null
+          understanding?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           created_at: string
           daily_time: string | null
+          default_language: string | null
           id: string
           language: string | null
           last_solved_at: string | null
@@ -156,6 +232,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           daily_time?: string | null
+          default_language?: string | null
           id?: string
           language?: string | null
           last_solved_at?: string | null
@@ -174,6 +251,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           daily_time?: string | null
+          default_language?: string | null
           id?: string
           language?: string | null
           last_solved_at?: string | null
@@ -235,6 +313,7 @@ export type Database = {
           problem_id: string
           test_cases_passed: number | null
           test_cases_total: number | null
+          time_taken_seconds: number | null
           user_id: string
           verdict: string
         }
@@ -249,6 +328,7 @@ export type Database = {
           problem_id: string
           test_cases_passed?: number | null
           test_cases_total?: number | null
+          time_taken_seconds?: number | null
           user_id: string
           verdict: string
         }
@@ -263,6 +343,7 @@ export type Database = {
           problem_id?: string
           test_cases_passed?: number | null
           test_cases_total?: number | null
+          time_taken_seconds?: number | null
           user_id?: string
           verdict?: string
         }

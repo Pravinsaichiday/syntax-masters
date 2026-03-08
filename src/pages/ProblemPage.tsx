@@ -2,11 +2,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ALL_PROBLEMS } from "@/data/problemsDatabase";
 import Navbar from "@/components/Navbar";
 import Discussion from "@/components/Discussion";
-import { useState, useCallback, useEffect } from "react";
+import ProblemNotes from "@/components/ProblemNotes";
+import ApproachGate from "@/components/ApproachGate";
+import SubmissionsHistory from "@/components/SubmissionsHistory";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Play, Send, Lightbulb, ArrowRight, Trophy, Code2, Loader2, TestTube } from "lucide-react";
+import { Play, Send, Lightbulb, ArrowRight, Trophy, Code2, Loader2, TestTube, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,6 +33,30 @@ const LANG_MONACO: Record<string, string> = {
 
 type Verdict = "Accepted" | "Wrong Answer" | "Time Limit Exceeded" | "Compilation Error" | "Runtime Error" | "Memory Limit Exceeded" | null;
 
+// Topic explanations for educational context
+const TOPIC_EXPLANATIONS: Record<string, string> = {
+  Arrays: "Arrays are contiguous blocks of memory storing elements of the same type. They provide O(1) random access but O(n) insertion/deletion. Master traversal, two-pointer, and sliding window techniques.",
+  Strings: "Strings are sequences of characters. Key patterns include palindrome checking, anagram detection, pattern matching (KMP, Rabin-Karp), and string manipulation with StringBuilder/StringBuffer.",
+  "Linked Lists": "Linked lists store elements with pointers to next nodes. They excel at O(1) insertion/deletion but have O(n) access time. Learn fast/slow pointers, reversal, and cycle detection.",
+  "Hash Maps": "Hash maps provide O(1) average-case lookup, insert, and delete using hash functions. Essential for frequency counting, two-sum patterns, and caching.",
+  Sorting: "Sorting arranges elements in order. Know O(n²) sorts (bubble, selection, insertion) and O(n log n) sorts (merge, quick, heap). Understand stability and in-place properties.",
+  Searching: "Binary search achieves O(log n) on sorted data. Learn to identify monotonic properties and apply binary search on answers, not just arrays.",
+  "Two Pointers": "Two pointers technique uses two indices moving towards each other or in the same direction. Useful for sorted arrays, pair finding, and partitioning.",
+  "Sliding Window": "Sliding window maintains a subset of elements as a window slides over data. Perfect for subarray/substring problems with contiguous constraints.",
+  Recursion: "Recursion solves problems by breaking them into smaller subproblems. Understand base cases, recursive cases, and the call stack.",
+  "Dynamic Programming": "DP optimizes recursive solutions by storing results of subproblems. Identify overlapping subproblems and optimal substructure.",
+  Trees: "Trees are hierarchical structures. Master traversals (inorder, preorder, postorder, level-order), BST operations, and tree DP.",
+  Graphs: "Graphs model relationships between objects. Learn BFS, DFS, shortest paths (Dijkstra, Bellman-Ford), and topological sorting.",
+  Stacks: "Stacks follow LIFO (Last In, First Out). Used for expression evaluation, parentheses matching, and monotonic stack problems.",
+  Queues: "Queues follow FIFO (First In, First Out). Used for BFS, task scheduling, and sliding window maximum.",
+  Math: "Mathematical problems involve number theory, modular arithmetic, GCD/LCM, prime numbers, and combinatorics.",
+  "Bit Manipulation": "Bit manipulation uses binary operations (AND, OR, XOR, shift) for efficient computation. Common in optimization and encoding problems.",
+  Greedy: "Greedy algorithms make locally optimal choices at each step. Prove the greedy choice property before applying.",
+  Backtracking: "Backtracking explores all possibilities by building solutions incrementally and abandoning paths that fail constraints.",
+  Heaps: "Heaps (priority queues) maintain max/min element efficiently. O(log n) insert/delete, O(1) peek. Used for K-th element and merge operations.",
+  Matrix: "Matrix problems involve 2D array traversal, rotation, spiral order, and search. Often combine BFS/DFS with grid navigation.",
+};
+
 export default function ProblemPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -38,8 +65,9 @@ export default function ProblemPage() {
   const currentIndex = ALL_PROBLEMS.findIndex((p) => p.id === id);
   const nextProblem = currentIndex >= 0 && currentIndex < ALL_PROBLEMS.length - 1 ? ALL_PROBLEMS[currentIndex + 1] : null;
 
-  const [language, setLanguage] = useState("C++");
-  const [code, setCode] = useState(LANG_MAP["C++"].template);
+  const defaultLang = (profile as any)?.default_language || "C++";
+  const [language, setLanguage] = useState(defaultLang);
+  const [code, setCode] = useState(LANG_MAP[defaultLang]?.template || LANG_MAP["C++"].template);
   const [output, setOutput] = useState("");
   const [verdict, setVerdict] = useState<Verdict>(null);
   const [running, setRunning] = useState(false);
@@ -51,6 +79,14 @@ export default function ProblemPage() {
   const [activeTab, setActiveTab] = useState<"output" | "custom">("output");
   const [customInput, setCustomInput] = useState("");
   const [customOutput, setCustomOutput] = useState("");
+  const [approachUnlocked, setApproachUnlocked] = useState(false);
+
+  // Timer for time-taken tracking
+  const startTimeRef = useRef<number>(Date.now());
+
+  useEffect(() => {
+    startTimeRef.current = Date.now();
+  }, [id]);
 
   useEffect(() => {
     if (!user || !problem) return;
@@ -65,6 +101,7 @@ export default function ProblemPage() {
       .then(({ data }) => {
         if (data && data.length > 0) {
           setAlreadySolved(true);
+          setApproachUnlocked(true);
           setCode(data[0].code);
           setLanguage(data[0].language);
         }
@@ -79,7 +116,10 @@ export default function ProblemPage() {
       setAlreadySolved(false);
       setSolutionCode(null);
       setCustomOutput("");
-      setCode(LANG_MAP[language]?.template || "");
+      setApproachUnlocked(false);
+      const lang = (profile as any)?.default_language || "C++";
+      setLanguage(lang);
+      setCode(LANG_MAP[lang]?.template || LANG_MAP["C++"].template);
     }
   }, [id]);
 
@@ -94,6 +134,12 @@ export default function ProblemPage() {
     };
     frame();
   }, []);
+
+  const handleSetDefaultLang = async (lang: string) => {
+    if (!user) return;
+    await supabase.from("profiles").update({ default_language: lang } as any).eq("user_id", user.id);
+    toast.success(`${lang} set as default language`);
+  };
 
   const handleGetSolution = async () => {
     if (!user || !profile || !problem) {
@@ -142,6 +188,12 @@ export default function ProblemPage() {
     }
   };
 
+  const handleLoadSubmissionCode = (submittedCode: string, lang: string) => {
+    setLanguage(lang);
+    setCode(submittedCode);
+    toast.success("Code loaded from submission");
+  };
+
   if (!problem) {
     return <div className="min-h-screen bg-background"><Navbar /><div className="flex items-center justify-center py-20 text-muted-foreground">Problem not found.</div></div>;
   }
@@ -154,11 +206,18 @@ export default function ProblemPage() {
     Advanced: "bg-destructive/10 text-destructive",
   };
 
+  const timeTakenSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
+
   const callExecuteCode = async (mode: "run" | "submit") => {
+    if (!user) {
+      toast.error("Please log in to run code");
+      return;
+    }
     setRunning(true);
     setVerdict(null);
     setOutput("Processing...");
     setActiveTab("output");
+    const elapsed = Math.round((Date.now() - startTimeRef.current) / 1000);
     try {
       const { data, error } = await supabase.functions.invoke("execute-code", {
         body: { code, language, problemDescription: problem.description, sampleCases: problem.sampleCases, mode },
@@ -171,25 +230,21 @@ export default function ProblemPage() {
       } else {
         const v = data.verdict as Verdict;
         setVerdict(v);
-        setOutput(`Verdict: ${v}\n\nTest Cases: ${data.testCasesPassed || 0}/${data.testCasesTotal || 0} passed\nExecution time: ${data.executionTimeMs || 0}ms\nMemory: ${data.memoryMb || 0}MB${data.details ? `\n\nDetails: ${data.details}` : ""}`);
+        setOutput(`Verdict: ${v}\n\nTest Cases: ${data.testCasesPassed || 0}/${data.testCasesTotal || 0} passed\nExecution time: ${data.executionTimeMs || 0}ms\nMemory: ${data.memoryMb || 0}MB\nTime taken: ${Math.floor(elapsed / 60)}m ${elapsed % 60}s${data.details ? `\n\nDetails: ${data.details}` : ""}`);
         if (v === "Accepted") {
           fireConfetti();
           setShowSuccess(true);
-          if (user) {
-            await supabase.from("submissions").insert({ user_id: user.id, problem_id: problem.id, language, code, verdict: v, execution_time_ms: data.executionTimeMs, memory_mb: data.memoryMb, output: data.output, test_cases_passed: data.testCasesPassed, test_cases_total: data.testCasesTotal });
-            if (!alreadySolved && profile) {
-              await updateProfile({ xp: profile.xp + problem.xpReward, solved_count: profile.solved_count + 1 });
-              toast.success(`Accepted! +${problem.xpReward} XP`);
-              setAlreadySolved(true);
-            } else {
-              toast.success("Accepted! (Already solved — no extra XP)");
-            }
+          await supabase.from("submissions").insert({ user_id: user.id, problem_id: problem.id, language, code, verdict: v, execution_time_ms: data.executionTimeMs, memory_mb: data.memoryMb, output: data.output, test_cases_passed: data.testCasesPassed, test_cases_total: data.testCasesTotal, time_taken_seconds: elapsed } as any);
+          if (!alreadySolved && profile) {
+            await updateProfile({ xp: profile.xp + problem.xpReward, solved_count: profile.solved_count + 1 });
+            toast.success(`Accepted! +${problem.xpReward} XP`);
+            setAlreadySolved(true);
+          } else {
+            toast.success("Accepted! (Already solved — no extra XP)");
           }
         } else {
           toast.error(v || "Error");
-          if (user) {
-            await supabase.from("submissions").insert({ user_id: user.id, problem_id: problem.id, language, code, verdict: v || "Unknown", execution_time_ms: data.executionTimeMs, memory_mb: data.memoryMb, output: data.output, test_cases_passed: data.testCasesPassed, test_cases_total: data.testCasesTotal });
-          }
+          await supabase.from("submissions").insert({ user_id: user.id, problem_id: problem.id, language, code, verdict: v || "Unknown", execution_time_ms: data.executionTimeMs, memory_mb: data.memoryMb, output: data.output, test_cases_passed: data.testCasesPassed, test_cases_total: data.testCasesTotal, time_taken_seconds: elapsed } as any);
         }
       }
     } catch (err: any) {
@@ -201,38 +256,83 @@ export default function ProblemPage() {
     }
   };
 
+  // Topic explanation
+  const topicExplanation = problem.topics.map(t => TOPIC_EXPLANATIONS[t]).filter(Boolean).join("\n\n");
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="flex h-[calc(100vh-64px)] flex-col lg:flex-row">
         {/* Left: Problem Description */}
         <div className="w-full overflow-y-auto border-r border-border p-6 lg:w-[45%]">
-          <div className="mb-4 flex items-center gap-3">
+          <div className="mb-4 flex items-center gap-3 flex-wrap">
             <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${DIFF_COLORS[problem.difficulty] || ""}`}>{problem.difficulty}</span>
             <span className="text-xs text-muted-foreground">{problem.source}</span>
             <span className="text-xs text-primary">+{problem.xpReward} XP</span>
             {alreadySolved && <span className="rounded-md bg-success/10 px-2 py-0.5 text-xs font-bold text-success">✓ Solved</span>}
           </div>
           <h1 className="mb-4 text-xl font-bold">{problem.title}</h1>
-          <div className="mb-4 flex gap-2">{problem.topics.map((t) => <span key={t} className="rounded bg-surface-3 px-2 py-0.5 text-xs text-muted-foreground">{t}</span>)}</div>
+          <div className="mb-4 flex gap-2 flex-wrap">{problem.topics.map((t) => <span key={t} className="rounded bg-surface-3 px-2 py-0.5 text-xs text-muted-foreground">{t}</span>)}</div>
 
           <div className="prose prose-sm prose-invert max-w-none">
             <p className="text-sm leading-relaxed text-foreground/90">{problem.description}</p>
-            <h3 className="mt-6 text-sm font-semibold text-foreground">Input Format</h3>
-            <p className="text-sm text-muted-foreground">{problem.inputFormat}</p>
-            <h3 className="mt-4 text-sm font-semibold text-foreground">Output Format</h3>
-            <p className="text-sm text-muted-foreground">{problem.outputFormat}</p>
-            <h3 className="mt-4 text-sm font-semibold text-foreground">Constraints</h3>
-            <ul className="mt-1 space-y-1">{problem.constraints.map((c, i) => <li key={i} className="text-sm font-mono text-muted-foreground">{c}</li>)}</ul>
+
+            {/* Input Format */}
+            <div className="mt-6 rounded-lg border border-border bg-surface-2 p-4">
+              <h3 className="text-sm font-semibold text-foreground mb-2">📥 Input Format</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{problem.inputFormat}</p>
+            </div>
+
+            {/* Output Format */}
+            <div className="mt-3 rounded-lg border border-border bg-surface-2 p-4">
+              <h3 className="text-sm font-semibold text-foreground mb-2">📤 Output Format</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{problem.outputFormat}</p>
+            </div>
+
+            {/* Constraints */}
+            <div className="mt-3 rounded-lg border border-border bg-surface-2 p-4">
+              <h3 className="text-sm font-semibold text-foreground mb-2">⚠️ Constraints</h3>
+              <ul className="space-y-1.5">
+                {problem.constraints.map((c, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5">•</span>
+                    <span className="text-sm font-mono text-muted-foreground">{c}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Sample Cases */}
             <h3 className="mt-6 text-sm font-semibold text-foreground">Sample Cases</h3>
             {problem.sampleCases.map((sc, i) => (
-              <div key={i} className="mt-3 rounded-lg bg-surface-2 p-4">
-                <div className="mb-2"><span className="text-xs font-medium text-muted-foreground">Input:</span><pre className="mt-1 font-mono text-sm text-foreground">{sc.input}</pre></div>
-                <div><span className="text-xs font-medium text-muted-foreground">Output:</span><pre className="mt-1 font-mono text-sm text-foreground">{sc.output}</pre></div>
-                {sc.explanation && <p className="mt-2 text-xs text-muted-foreground">Explanation: {sc.explanation}</p>}
+              <div key={i} className="mt-3 rounded-lg border border-border bg-surface-2 p-4">
+                <div className="mb-3">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">Input</span>
+                  <pre className="mt-1 rounded bg-background p-3 font-mono text-sm text-foreground">{sc.input}</pre>
+                </div>
+                <div>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-success">Output</span>
+                  <pre className="mt-1 rounded bg-background p-3 font-mono text-sm text-foreground">{sc.output}</pre>
+                </div>
+                {sc.explanation && <p className="mt-2 text-xs text-muted-foreground italic">💡 {sc.explanation}</p>}
               </div>
             ))}
           </div>
+
+          {/* Topic Explanation - Educational */}
+          {topicExplanation && (
+            <div className="mt-6 rounded-xl border border-primary/20 bg-primary/5 p-5">
+              <h3 className="text-sm font-semibold text-primary mb-2 flex items-center gap-2">
+                <BookOpen className="h-4 w-4" /> Topic Explanation
+              </h3>
+              {problem.topics.map(t => TOPIC_EXPLANATIONS[t] ? (
+                <div key={t} className="mb-3 last:mb-0">
+                  <span className="text-xs font-bold text-foreground">{t}:</span>
+                  <p className="text-xs text-foreground/70 leading-relaxed mt-0.5">{TOPIC_EXPLANATIONS[t]}</p>
+                </div>
+              ) : null)}
+            </div>
+          )}
 
           {/* Hints */}
           <div className="mt-6">
@@ -266,31 +366,54 @@ export default function ProblemPage() {
             )}
           </div>
 
+          {/* Notes */}
+          <ProblemNotes problemId={problem.id} />
+
+          {/* Submissions History */}
+          <SubmissionsHistory problemId={problem.id} onLoadCode={handleLoadSubmissionCode} />
+
           {/* Discussion Section */}
           <Discussion problemId={problem.id} />
         </div>
 
         {/* Right: Code Editor */}
         <div className="flex w-full flex-col lg:w-[55%]">
+          {/* Approach Gate */}
+          <div className="px-4 pt-3">
+            <ApproachGate
+              onUnlock={() => setApproachUnlocked(true)}
+              isUnlocked={approachUnlocked || alreadySolved || !user}
+            />
+          </div>
+
           <div className="flex items-center justify-between border-b border-border px-4 py-2">
-            <select
-              value={language}
-              onChange={(e) => { setLanguage(e.target.value); setCode(LANG_MAP[e.target.value]?.template || ""); }}
-              className="rounded bg-surface-2 border border-border px-3 py-1.5 text-sm text-foreground"
-            >
-              {Object.keys(LANG_MAP).map((l) => <option key={l} value={l}>{l}</option>)}
-            </select>
+            <div className="flex items-center gap-2">
+              <select
+                value={language}
+                onChange={(e) => { setLanguage(e.target.value); setCode(LANG_MAP[e.target.value]?.template || ""); }}
+                className="rounded bg-surface-2 border border-border px-3 py-1.5 text-sm text-foreground"
+              >
+                {Object.keys(LANG_MAP).map((l) => <option key={l} value={l}>{l}</option>)}
+              </select>
+              <button
+                onClick={() => handleSetDefaultLang(language)}
+                className="text-[10px] text-muted-foreground hover:text-primary transition-colors"
+                title="Set as default language"
+              >
+                Set Default
+              </button>
+            </div>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => callExecuteCode("run")} disabled={running}>
+              <Button size="sm" variant="outline" onClick={() => callExecuteCode("run")} disabled={running || (!approachUnlocked && !!user && !alreadySolved)}>
                 <Play className="mr-1 h-3.5 w-3.5" />Run
               </Button>
-              <Button size="sm" onClick={() => callExecuteCode("submit")} disabled={running} className="bg-gradient-gold font-semibold">
+              <Button size="sm" onClick={() => callExecuteCode("submit")} disabled={running || (!approachUnlocked && !!user && !alreadySolved)} className="bg-gradient-gold font-semibold">
                 <Send className="mr-1 h-3.5 w-3.5" />Submit
               </Button>
             </div>
           </div>
 
-          <div className="flex-1 min-h-[300px]">
+          <div className={`flex-1 min-h-[300px] ${(!approachUnlocked && !!user && !alreadySolved) ? "opacity-40 pointer-events-none" : ""}`}>
             <Editor
               height="100%"
               language={LANG_MONACO[language] || "plaintext"}
@@ -375,7 +498,8 @@ export default function ProblemPage() {
             <p className="text-muted-foreground mb-1">
               {alreadySolved ? "You've already solved this one!" : <>You earned <span className="font-bold text-primary">+{problem?.xpReward} XP</span></>}
             </p>
-            <p className="text-sm text-muted-foreground mb-6">All test cases passed successfully!</p>
+            <p className="text-sm text-muted-foreground mb-1">All test cases passed successfully!</p>
+            <p className="text-xs text-muted-foreground mb-6">Time taken: {Math.floor(timeTakenSeconds / 60)}m {timeTakenSeconds % 60}s</p>
             <div className="flex gap-3 justify-center">
               <Button variant="outline" onClick={() => setShowSuccess(false)}>Stay Here</Button>
               {nextProblem && (

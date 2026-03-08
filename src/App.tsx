@@ -25,6 +25,7 @@ import LearnTrackPage from "./pages/LearnTrackPage";
 import TrackTopicPage from "./pages/TrackTopicPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import MaintenancePage from "./pages/MaintenancePage";
+import NotebookPage from "./pages/NotebookPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -81,6 +82,7 @@ function AppRoutes() {
         <Route path="/learn-python/:topicId" element={<PythonTopicPage />} />
         <Route path="/learn/:trackId" element={<LearnTrackPage />} />
         <Route path="/learn/:trackId/:topicId" element={<TrackTopicPage />} />
+        <Route path="/notebook" element={<NotebookPage />} />
         <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
