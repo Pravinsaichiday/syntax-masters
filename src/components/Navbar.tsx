@@ -12,9 +12,9 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link to="/" className="flex items-center gap-2">
+        <Link to={isAuthenticated ? "/dashboard" : "/"} className="flex items-center gap-2">
           <Code2 className="h-7 w-7 text-primary" />
-          <span className="text-xl font-bold tracking-tight"><span className="text-xl font-bold tracking-tight">Syntax<span className="text-gradient-gold">Masters</span></span></span>
+          <span className="text-xl font-bold tracking-tight">Syntax<span className="text-gradient-gold">Masters</span></span>
         </Link>
 
         <div className="hidden items-center gap-6 md:flex">
