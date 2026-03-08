@@ -327,6 +327,60 @@ export default function ProfilePage() {
             )}
           </div>
         </div>
+        {/* Solved Problems */}
+        {(solvedProblems.length > 0 || solvedPython.length > 0) && (
+          <div className="mb-8 rounded-xl border border-border bg-card p-6">
+            <h2 className="mb-4 text-lg font-semibold flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-success" />Solved Problems
+            </h2>
+
+            {solvedProblems.length > 0 && (
+              <div className="mb-4">
+                <h3 className="text-sm font-medium text-muted-foreground mb-3">Competitive Problems</h3>
+                <div className="space-y-2">
+                  {solvedProblems.map(p => (
+                    <Link key={p.id} to={`/problem/${p.id}`} className="flex items-center justify-between rounded-lg border border-border bg-surface-2 px-4 py-3 transition-colors hover:border-primary/30">
+                      <div className="flex items-center gap-3">
+                        <CheckCircle2 className="h-4 w-4 text-success" />
+                        <span className="text-sm font-medium">{p.title}</span>
+                        <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${
+                          p.difficulty === "Easy" ? "bg-success/10 text-success" :
+                          p.difficulty === "Medium" ? "bg-primary/10 text-primary" :
+                          "bg-destructive/10 text-destructive"
+                        }`}>{p.difficulty}</span>
+                      </div>
+                      <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {solvedPython.length > 0 && (
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+                  <BookOpen className="h-4 w-4" />Python Practice
+                </h3>
+                <div className="space-y-2">
+                  {solvedPython.map((q: any) => (
+                    <div key={q.id} className="flex items-center gap-3 rounded-lg border border-border bg-surface-2 px-4 py-3">
+                      <CheckCircle2 className="h-4 w-4 text-success" />
+                      <div>
+                        <span className="text-sm font-medium">{q.title}</span>
+                        <span className="ml-2 text-xs text-muted-foreground">{q.topicTitle}</span>
+                      </div>
+                      <span className={`ml-auto rounded px-1.5 py-0.5 text-[10px] font-medium ${
+                        q.difficulty === "Easy" ? "bg-success/10 text-success" :
+                        q.difficulty === "Medium" ? "bg-primary/10 text-primary" :
+                        "bg-destructive/10 text-destructive"
+                      }`}>{q.difficulty}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
