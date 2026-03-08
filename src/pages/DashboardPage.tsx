@@ -1,8 +1,10 @@
 import { useAuth } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
+import Recommendations from "@/components/Recommendations";
+import BadgesDisplay from "@/components/BadgesDisplay";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Flame, Target, TrendingUp, Zap, BookOpen, Trophy, ArrowRight, Map } from "lucide-react";
+import { Flame, Target, TrendingUp, Zap, BookOpen, ArrowRight, Map } from "lucide-react";
 import { ALL_PROBLEMS } from "@/data/problemsDatabase";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -14,20 +16,25 @@ export default function DashboardPage() {
   const { profile, user, isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
 
-  // Fetch leaderboard rank
   const { data: leaderboardRank } = useQuery({
     queryKey: ["leaderboard-rank", user?.id],
     queryFn: async () => {
       if (!user) return null;
-      const { data } = await supabase
-        .from("profiles")
-        .select("user_id, xp")
-        .gt("solved_count", 0)
-        .order("xp", { ascending: false })
-        .limit(500);
+      const { data } = await supabase.from("profiles").select("user_id, xp").gt("solved_count", 0).order("xp", { ascending: false }).limit(500);
       if (!data) return null;
       const idx = data.findIndex(p => p.user_id === user.id);
       return idx >= 0 ? idx + 1 : null;
+    },
+    enabled: !!user,
+  });
+
+  // Fetch solved problem IDs for recommendations
+  const { data: solvedIds } = useQuery({
+    queryKey: ["solved-ids", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data } = await supabase.from("submissions").select("problem_id").eq("user_id", user.id).eq("verdict", "Accepted");
+      return [...new Set((data || []).map((s: any) => s.problem_id))];
     },
     enabled: !!user,
   });
@@ -45,7 +52,6 @@ export default function DashboardPage() {
     );
   }
 
-  // Calculate display streak: if last_solved_at is older than yesterday, streak is effectively 0
   const displayStreak = (() => {
     const lastSolved = (profile as any).last_solved_at;
     if (!lastSolved) return 0;
@@ -88,6 +94,12 @@ export default function DashboardPage() {
             </motion.div>
           ))}
         </div>
+
+        {/* Badges */}
+        <BadgesDisplay />
+
+        {/* Recommendations */}
+        {solvedIds && <Recommendations solvedIds={solvedIds} />}
 
         <div className="mb-8">
           <div className="mb-4 flex items-center justify-between">
