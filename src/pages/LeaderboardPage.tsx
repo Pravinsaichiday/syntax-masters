@@ -101,7 +101,7 @@ export default function LeaderboardPage() {
 
         {/* Table */}
         <div className="rounded-xl border border-border bg-card overflow-hidden">
-          <div className="grid grid-cols-[auto_1fr_auto_auto_auto] gap-4 border-b border-border px-5 py-3 text-xs font-medium text-muted-foreground">
+          <div className="grid grid-cols-[auto_1fr_auto_auto_auto] gap-2 sm:gap-4 border-b border-border px-3 sm:px-5 py-3 text-xs font-medium text-muted-foreground">
             <span>Rank</span>
             <span>User</span>
             <span className="text-right">XP</span>
