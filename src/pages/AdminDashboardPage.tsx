@@ -87,7 +87,9 @@ export default function AdminDashboardPage() {
       const { error } = await supabase.functions.invoke("admin-settings", { body: { email: ADMIN_EMAIL, password: ADMIN_PASS, key, value } });
       if (error) throw error;
       if (key === "maintenance_mode") setMaintenanceMode(value === "true");
-      if (key === "python_locked") setPythonLocked(value === "true");
+      if (key.endsWith("_locked")) {
+        setTrackLocks(prev => ({ ...prev, [key]: value === "true" }));
+      }
       toast.success(`${key.replace(/_/g, " ")} updated`);
     } catch (err: any) { toast.error(err.message || "Failed to update setting"); }
     finally { setLoading(false); }
