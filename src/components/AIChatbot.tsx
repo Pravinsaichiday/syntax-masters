@@ -12,7 +12,7 @@ export default function AIChatbot() {
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "👋 Hi! I'm **SyntaxBot**, your coding tutor. Ask me anything about programming, DSA, algorithms, or any topic you find difficult!" },
+    { role: "assistant", content: "Hi! I'm **SyntaxBot**, your coding tutor. Ask me anything about programming, DSA, algorithms, or any topic you find difficult!" },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
