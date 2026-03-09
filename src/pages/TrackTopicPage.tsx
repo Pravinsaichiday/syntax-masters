@@ -201,7 +201,7 @@ export default function TrackTopicPage() {
 
               {/* Real-world Analogy */}
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-5">
-                <h3 className="text-sm font-semibold text-primary mb-2">🌍 Real-World Analogy</h3>
+                <h3 className="text-sm font-semibold text-primary mb-2">Real-World Analogy</h3>
                 <p className="text-sm text-foreground/80 leading-relaxed">{topic.realWorldAnalogy}</p>
               </div>
 
