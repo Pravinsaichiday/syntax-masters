@@ -4,7 +4,7 @@ export const C_CURRICULUM: CurriculumTrack = {
   id: "learn-c",
   title: "Learn C Programming",
   description: "Master C from scratch — pointers, memory, structs, and system programming.",
-  icon: "⚙️",
+  icon: "settings",
   language: "C",
   topics: [
     {

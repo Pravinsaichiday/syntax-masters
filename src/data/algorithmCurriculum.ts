@@ -371,7 +371,7 @@ export const INTERVIEW_CURRICULUM: CurriculumTrack = {
   id: "interview-prep",
   title: "Coding Interview Preparation",
   description: "Top 100 most asked questions with pattern-based approach.",
-  icon: "💼",
+  icon: "briefcase",
   topics: [
     {
       id: "interview-patterns",
