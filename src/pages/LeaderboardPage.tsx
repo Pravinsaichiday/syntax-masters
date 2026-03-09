@@ -70,7 +70,7 @@ export default function LeaderboardPage() {
 
         {/* Top 3 Podium */}
         {filtered.length >= 3 && (
-          <div className="mb-8 grid grid-cols-3 gap-4">
+          <div className="mb-8 hidden sm:grid grid-cols-3 gap-4">
             {[1, 0, 2].map((order, i) => {
               const user = filtered[order];
               if (!user) return null;
@@ -87,7 +87,7 @@ export default function LeaderboardPage() {
                     <div className="mb-1 flex h-12 w-12 items-center justify-center rounded-full border-2 border-primary bg-surface-2 text-lg font-bold text-primary mx-auto">
                       {user.name.charAt(0)}
                     </div>
-                    <Link to={`/profile/${user.username}`} className="text-sm font-semibold hover:text-primary transition-colors">{user.username}</Link>
+                    <Link to={`/profile/${user.username}`} className="text-sm font-semibold hover:text-primary transition-colors truncate block max-w-[120px] mx-auto">{user.username}</Link>
                     <div className="text-xs text-muted-foreground">{user.xp.toLocaleString()} XP</div>
                   </div>
                   <div className={`w-full rounded-t-lg bg-gradient-to-t from-primary/20 to-primary/5 border border-border border-b-0 flex items-end justify-center pb-2 ${heights[i]}`}>
