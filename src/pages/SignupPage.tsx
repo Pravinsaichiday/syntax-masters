@@ -44,6 +44,8 @@ export default function SignupPage() {
   };
 
   return (
+    <>
+    <ErrorPopup open={!!errorMsg} onClose={() => setErrorMsg("")} title="Signup Error" message={errorMsg} />
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
