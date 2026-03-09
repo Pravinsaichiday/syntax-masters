@@ -49,7 +49,10 @@ export default function ProblemsPage() {
     },
   });
 
-  const pythonLocked = settings?.find((s: any) => s.key === "python_locked")?.value === "true";
+  const trackLocks = (settings || []).reduce((acc: Record<string, boolean>, s: any) => {
+    if (s.key.endsWith("_locked")) acc[s.key] = s.value === "true";
+    return acc;
+  }, {});
 
   const toggleSort = (key: "difficulty" | "acceptance" | "xp") => {
     if (sortBy === `${key}-asc`) setSortBy(`${key}-desc` as SortKey);
