@@ -26,11 +26,11 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
+      setErrorMsg("Passwords do not match. Please re-enter.");
       return;
     }
     if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      setErrorMsg("Password must be at least 6 characters.");
       return;
     }
     setLoading(true);
