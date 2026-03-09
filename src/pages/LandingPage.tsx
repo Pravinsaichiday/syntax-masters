@@ -67,20 +67,20 @@ export default function LandingPage() {
             <p className="mx-auto mb-10 max-w-xl text-lg text-muted-foreground">
               The most advanced competitive programming platform with AI mentoring, real-time contests, and personalized learning paths.
             </p>
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
               <Button
-                size="lg"
+                size="default"
                 onClick={() => navigate("/signup")}
-                className="bg-gradient-gold px-8 text-base font-semibold"
+                className="bg-gradient-gold px-6 text-sm font-semibold sm:px-8 sm:text-base sm:size-lg"
               >
                 Start Coding Free
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
               <Button
-                size="lg"
+                size="default"
                 variant="outline"
                 onClick={() => navigate("/problems")}
-                className="border-border px-8 text-base"
+                className="border-border px-6 text-sm sm:px-8 sm:text-base sm:size-lg"
               >
                 Browse Problems
               </Button>
