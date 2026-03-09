@@ -1,28 +1,38 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Zap, Trophy, Brain, Code2, BarChart3, Users } from "lucide-react";
-import { useState } from "react";
+import { ArrowRight, Zap, Brain, Code2, BarChart3, Users } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const features = [
   { icon: Code2, title: "Built-in Code Editor", desc: "Write, compile, and run code in 10+ languages with real-time feedback." },
   { icon: Brain, title: "AI-Powered Mentoring", desc: "Get intelligent hints, code reviews, and optimization suggestions." },
-  { icon: Trophy, title: "Live Contests", desc: "Compete in real-time contests with live leaderboards and rankings." },
   { icon: Zap, title: "Adaptive Learning", desc: "Personalized problem recommendations that evolve with your skill." },
   { icon: BarChart3, title: "Deep Analytics", desc: "Track your progress with heatmaps, charts, and mastery metrics." },
   { icon: Users, title: "Global Community", desc: "Compete with thousands of developers worldwide." },
 ];
 
-const stats = [
-  { value: "5,000+", label: "Problems" },
-  { value: "50K+", label: "Active Users" },
-  { value: "200+", label: "Contests" },
-  { value: "10+", label: "Languages" },
-];
-
 export default function LandingPage() {
   const navigate = useNavigate();
   const [footerClicks, setFooterClicks] = useState(0);
+  const [userCount, setUserCount] = useState(0);
+
+  useEffect(() => {
+    const fetchUserCount = async () => {
+      const { count } = await supabase
+        .from("profiles")
+        .select("*", { count: "exact", head: true });
+      setUserCount(count || 0);
+    };
+    fetchUserCount();
+  }, []);
+
+  const stats = [
+    { value: "5,000+", label: "Problems" },
+    { value: `${userCount}+`, label: "Active Users" },
+    { value: "10+", label: "Languages" },
+  ];
 
   const handleFooterClick = () => {
     const newCount = footerClicks + 1;
