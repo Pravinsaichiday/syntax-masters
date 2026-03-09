@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Shield, Lock, Unlock, Server, ServerOff, LogOut, Key, Activity, CheckCircle2, XCircle, AlertCircle, Plus, Save } from "lucide-react";
 import { motion } from "framer-motion";
 import { ALL_PROBLEMS, EXPANDED_TOPICS, type Difficulty } from "@/data/problemsDatabase";
+import { LEARNING_TRACKS } from "@/data/learningTracks";
 
 const ADMIN_EMAIL = "sensei777@gmail.com";
 const ADMIN_PASS = "911911";
@@ -19,7 +20,7 @@ export default function AdminDashboardPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [maintenanceMode, setMaintenanceMode] = useState(false);
-  const [pythonLocked, setPythonLocked] = useState(false);
+  const [trackLocks, setTrackLocks] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState("");
   const [usageCount, setUsageCount] = useState(0);
@@ -46,11 +47,15 @@ export default function AdminDashboardPage() {
   const fetchSettings = async () => {
     const { data } = await supabase.from("admin_settings").select("*");
     if (data) {
+      const locks: Record<string, boolean> = {};
       data.forEach((s: any) => {
         if (s.key === "maintenance_mode") setMaintenanceMode(s.value === "true");
-        if (s.key === "python_locked") setPythonLocked(s.value === "true");
         if (s.key === "maintenance_message") setMaintenanceMessage(s.value);
+        if (s.key.endsWith("_locked")) {
+          locks[s.key] = s.value === "true";
+        }
       });
+      setTrackLocks(locks);
     }
   };
 
@@ -82,7 +87,9 @@ export default function AdminDashboardPage() {
       const { error } = await supabase.functions.invoke("admin-settings", { body: { email: ADMIN_EMAIL, password: ADMIN_PASS, key, value } });
       if (error) throw error;
       if (key === "maintenance_mode") setMaintenanceMode(value === "true");
-      if (key === "python_locked") setPythonLocked(value === "true");
+      if (key.endsWith("_locked")) {
+        setTrackLocks(prev => ({ ...prev, [key]: value === "true" }));
+      }
       toast.success(`${key.replace(/_/g, " ")} updated`);
     } catch (err: any) { toast.error(err.message || "Failed to update setting"); }
     finally { setLoading(false); }
@@ -253,16 +260,31 @@ export default function AdminDashboardPage() {
               </div>
             </motion.div>
 
-            {/* Python Lock */}
+            {/* Learning Track Locks */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="rounded-xl border border-border bg-card p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {pythonLocked ? <Lock className="h-6 w-6 text-destructive" /> : <Unlock className="h-6 w-6 text-success" />}
-                  <div><h3 className="font-semibold">Learn Python Section</h3><p className="text-sm text-muted-foreground">{pythonLocked ? "LOCKED" : "UNLOCKED"}</p></div>
-                </div>
-                <button disabled={loading} onClick={() => updateSetting("python_locked", pythonLocked ? "false" : "true")} className={`relative h-7 w-14 rounded-full transition-colors ${pythonLocked ? "bg-destructive" : "bg-success"}`}>
-                  <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white transition-transform ${pythonLocked ? "left-7" : "left-0.5"}`} />
-                </button>
+              <div className="mb-4">
+                <h3 className="font-semibold">Learning Track Access</h3>
+                <p className="text-sm text-muted-foreground">Lock or unlock individual learning tracks</p>
+              </div>
+              <div className="space-y-3">
+                {LEARNING_TRACKS.map((track) => {
+                  const lockKey = `${track.id.replace(/-/g, "_")}_locked`;
+                  const isLocked = trackLocks[lockKey] ?? false;
+                  return (
+                    <div key={track.id} className="flex items-center justify-between rounded-lg bg-surface-2 px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        {isLocked ? <Lock className="h-4 w-4 text-destructive" /> : <Unlock className="h-4 w-4 text-success" />}
+                        <div>
+                          <h4 className="text-sm font-medium">{track.title}</h4>
+                          <p className="text-xs text-muted-foreground">{isLocked ? "LOCKED" : "UNLOCKED"}</p>
+                        </div>
+                      </div>
+                      <button disabled={loading} onClick={() => updateSetting(lockKey, isLocked ? "false" : "true")} className={`relative h-6 w-12 rounded-full transition-colors ${isLocked ? "bg-destructive" : "bg-success"}`}>
+                        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${isLocked ? "left-6" : "left-0.5"}`} />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </motion.div>
           </div>

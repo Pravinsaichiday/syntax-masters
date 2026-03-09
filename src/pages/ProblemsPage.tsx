@@ -49,7 +49,10 @@ export default function ProblemsPage() {
     },
   });
 
-  const pythonLocked = settings?.find((s: any) => s.key === "python_locked")?.value === "true";
+  const trackLocks = (settings || []).reduce((acc: Record<string, boolean>, s: any) => {
+    if (s.key.endsWith("_locked")) acc[s.key] = s.value === "true";
+    return acc;
+  }, {});
 
   const toggleSort = (key: "difficulty" | "acceptance" | "xp") => {
     if (sortBy === `${key}-asc`) setSortBy(`${key}-desc` as SortKey);
@@ -122,7 +125,11 @@ export default function ProblemsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <h3 className="text-sm font-bold truncate">{track.title}</h3>
-                      {track.id === "learn-python" && (pythonLocked ? <Lock className="h-3 w-3 text-destructive flex-shrink-0" /> : <Unlock className="h-3 w-3 text-success flex-shrink-0" />)}
+                      {(() => {
+                        const lockKey = `${track.id.replace(/-/g, "_")}_locked`;
+                        const isLocked = trackLocks[lockKey];
+                        return isLocked ? <Lock className="h-3 w-3 text-destructive flex-shrink-0" /> : <Unlock className="h-3 w-3 text-success flex-shrink-0" />;
+                      })()}
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">{track.description}</p>
                     <p className="text-xs text-primary mt-1">{track.difficulty}</p>

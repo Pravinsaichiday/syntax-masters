@@ -1,10 +1,12 @@
 import Navbar from "@/components/Navbar";
 import { motion } from "framer-motion";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { BookOpen, CheckCircle2, Circle, ArrowLeft, Code, MapIcon, Zap, Trophy, Briefcase, Settings, Coffee, Hexagon } from "lucide-react";
+import { BookOpen, CheckCircle2, Circle, ArrowLeft, Code, MapIcon, Zap, Trophy, Briefcase, Settings, Coffee, Hexagon, Lock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import type { CurriculumTrack, CurriculumTopic } from "@/data/curriculumTypes";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 import { C_CURRICULUM } from "@/data/cCurriculum";
 import { CPP_CURRICULUM } from "@/data/cppCurriculum";
@@ -37,11 +39,35 @@ export default function LearnTrackPage() {
   const navigate = useNavigate();
   const track = trackId ? TRACKS[trackId] : null;
 
+  const lockKey = trackId ? `${trackId.replace(/-/g, "_")}_locked` : "";
+  const { data: isLocked } = useQuery({
+    queryKey: ["track-lock", lockKey],
+    queryFn: async () => {
+      const { data } = await supabase.from("admin_settings").select("value").eq("key", lockKey).single();
+      return data?.value === "true";
+    },
+    enabled: !!lockKey,
+  });
+
   if (!track) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="flex items-center justify-center py-20 text-muted-foreground">Track not found.</div>
+      </div>
+    );
+  }
+
+  if (isLocked) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <Lock className="h-12 w-12 text-destructive" />
+          <h2 className="text-xl font-bold">This track is currently locked</h2>
+          <p className="text-sm text-muted-foreground">Check back later or contact an administrator.</p>
+          <Link to="/problems" className="text-primary text-sm hover:underline">Back to Problems</Link>
+        </div>
       </div>
     );
   }
