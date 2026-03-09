@@ -261,9 +261,9 @@ export default function ProblemPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="flex h-[calc(100vh-64px)] flex-col lg:flex-row">
+      <div className="flex h-[calc(100vh-64px)] flex-col lg:flex-row overflow-hidden">
         {/* Left: Problem Description */}
-        <div className="w-full overflow-y-auto border-r border-border p-6 lg:w-[45%]">
+        <div className="w-full overflow-y-auto border-b lg:border-b-0 lg:border-r border-border p-4 sm:p-6 lg:w-[45%] max-h-[50vh] lg:max-h-none">
           <div className="mb-4 flex items-center gap-3 flex-wrap">
             <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${DIFF_COLORS[problem.difficulty] || ""}`}>{problem.difficulty}</span>
             <span className="text-xs text-muted-foreground">{problem.source}</span>
