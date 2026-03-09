@@ -329,7 +329,7 @@ export default function ProfilePage() {
               </>
             )}
           </div>
-          <div>
+          <div className="text-center sm:text-left">
             <h1 className="text-2xl font-bold">{profileData.name}</h1>
             <div className="flex items-center gap-2">
               {editingUsername ? (
