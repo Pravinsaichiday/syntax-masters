@@ -215,7 +215,7 @@ export default function DSATopicPage() {
       if (error) throw error;
       if (data?.solution) {
         setCode(data.solution);
-        setOutput("💡 AI Solution loaded. Study it, then try to solve it yourself!");
+        setOutput("AI Solution loaded. Study it, then try to solve it yourself!");
       }
     } catch (err: any) {
       console.error(err);
