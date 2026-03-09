@@ -349,7 +349,7 @@ export default function ProfilePage() {
                 </>
               )}
             </div>
-            <div className="mt-1 flex gap-3 text-sm text-muted-foreground">
+            <div className="mt-1 flex flex-wrap justify-center sm:justify-start gap-3 text-sm text-muted-foreground">
               <span>{profileData.language}</span><span>·</span><span>{profileData.level}</span><span>·</span>
               <span>Joined {new Date(profileData.joinedAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</span>
             </div>

@@ -120,7 +120,7 @@ export default function LeaderboardPage() {
               >
                 <Link
                   to={`/profile/${u.username}`}
-                  className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-4 border-b border-border px-5 py-3.5 transition-colors last:border-0 hover:bg-surface-2"
+                  className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-2 sm:gap-4 border-b border-border px-3 sm:px-5 py-3.5 transition-colors last:border-0 hover:bg-surface-2"
                 >
                   <span className={`w-8 text-center font-bold ${u.rank <= 3 ? "text-primary" : "text-muted-foreground"}`}>
                     {u.rank}

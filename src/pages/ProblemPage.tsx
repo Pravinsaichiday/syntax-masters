@@ -441,24 +441,24 @@ export default function ProblemPage() {
                 {running ? "Processing..." : output || "Run or submit your code to see output here."}
               </pre>
             ) : (
-              <div className="h-32 flex gap-2 p-3">
+              <div className="h-auto min-h-[120px] sm:h-32 flex flex-col sm:flex-row gap-2 p-3">
                 <div className="flex-1 flex flex-col">
                   <label className="text-[10px] font-medium text-muted-foreground mb-1">Custom Input</label>
                   <Textarea
                     value={customInput}
                     onChange={(e) => setCustomInput(e.target.value)}
                     placeholder="Enter your test input..."
-                    className="flex-1 bg-surface-2 text-xs font-mono min-h-0 resize-none"
+                    className="flex-1 bg-surface-2 text-xs font-mono min-h-[60px] sm:min-h-0 resize-none"
                   />
                 </div>
-                <div className="flex flex-col items-center justify-center">
+                <div className="flex flex-row sm:flex-col items-center justify-center">
                   <Button size="sm" variant="outline" onClick={handleRunCustom} disabled={running} className="text-xs">
                     <Play className="h-3 w-3 mr-1" />Run
                   </Button>
                 </div>
                 <div className="flex-1 flex flex-col">
                   <label className="text-[10px] font-medium text-muted-foreground mb-1">Output</label>
-                  <pre className="flex-1 overflow-y-auto rounded bg-surface-2 p-2 text-xs font-mono text-muted-foreground">
+                  <pre className="flex-1 overflow-y-auto rounded bg-surface-2 p-2 text-xs font-mono text-muted-foreground min-h-[60px] sm:min-h-0">
                     {customOutput || "Output will appear here..."}
                   </pre>
                 </div>
