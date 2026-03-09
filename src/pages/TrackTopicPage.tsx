@@ -208,7 +208,7 @@ export default function TrackTopicPage() {
               {/* Visualization */}
               {topic.visualization && (
                 <div className="rounded-xl border border-border bg-card p-5">
-                  <h3 className="text-sm font-semibold text-foreground mb-3">📊 Visualization</h3>
+                  <h3 className="text-sm font-semibold text-foreground mb-3">Visualization</h3>
                   <pre className="font-mono text-xs text-muted-foreground whitespace-pre overflow-x-auto bg-surface-2 p-4 rounded-lg">
                     {topic.visualization}
                   </pre>
