@@ -92,7 +92,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="mx-auto mt-20 grid max-w-2xl grid-cols-2 gap-6 md:grid-cols-4"
+            className="mx-auto mt-14 grid max-w-2xl grid-cols-2 gap-4 sm:mt-20 sm:gap-6 md:grid-cols-4"
           >
             {stats.map((s) => (
               <div key={s.label} className="text-center">
