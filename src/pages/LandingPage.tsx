@@ -48,7 +48,7 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(38_92%_55%/0.08),transparent_60%)]" />
-        <div className="container relative mx-auto px-4 pb-20 pt-24 md:pt-32">
+        <div className="container relative mx-auto px-4 pb-16 pt-20 sm:pb-20 sm:pt-24 md:pt-32">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -59,28 +59,28 @@ export default function LandingPage() {
               <Zap className="h-3.5 w-3.5 text-primary" />
               AI-powered competitive programming
             </div>
-            <h1 className="mb-6 text-4xl font-bold leading-tight tracking-tight md:text-6xl lg:text-7xl">
+            <h1 className="mb-4 text-3xl font-bold leading-tight tracking-tight sm:mb-6 sm:text-4xl md:text-6xl lg:text-7xl">
               Master Algorithms.
               <br />
               <span className="text-gradient-gold">Master Your Syntax.</span>
             </h1>
-            <p className="mx-auto mb-10 max-w-xl text-lg text-muted-foreground">
+            <p className="mx-auto mb-8 max-w-xl text-base text-muted-foreground sm:mb-10 sm:text-lg">
               The most advanced competitive programming platform with AI mentoring, real-time contests, and personalized learning paths.
             </p>
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
               <Button
-                size="lg"
+                size="default"
                 onClick={() => navigate("/signup")}
-                className="bg-gradient-gold px-8 text-base font-semibold"
+                className="bg-gradient-gold px-6 text-sm font-semibold sm:px-8 sm:text-base sm:size-lg"
               >
                 Start Coding Free
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
               <Button
-                size="lg"
+                size="default"
                 variant="outline"
                 onClick={() => navigate("/problems")}
-                className="border-border px-8 text-base"
+                className="border-border px-6 text-sm sm:px-8 sm:text-base sm:size-lg"
               >
                 Browse Problems
               </Button>
@@ -92,12 +92,12 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="mx-auto mt-20 grid max-w-2xl grid-cols-2 gap-6 md:grid-cols-4"
+            className="mx-auto mt-14 grid max-w-2xl grid-cols-2 gap-4 sm:mt-20 sm:gap-6 md:grid-cols-4"
           >
             {stats.map((s) => (
               <div key={s.label} className="text-center">
-                <div className="text-3xl font-bold text-gradient-gold">{s.value}</div>
-                <div className="mt-1 text-sm text-muted-foreground">{s.label}</div>
+                <div className="text-2xl font-bold text-gradient-gold sm:text-3xl">{s.value}</div>
+                <div className="mt-1 text-xs text-muted-foreground sm:text-sm">{s.label}</div>
               </div>
             ))}
           </motion.div>
@@ -135,7 +135,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 text-center">
           <h2 className="mb-4 text-3xl font-bold">Ready to Level Up?</h2>
           <p className="mb-8 text-muted-foreground">Join thousands of developers improving their skills every day.</p>
-          <Button size="lg" onClick={() => navigate("/signup")} className="bg-gradient-gold px-10 text-base font-semibold">
+          <Button size="default" onClick={() => navigate("/signup")} className="bg-gradient-gold px-8 text-sm font-semibold sm:text-base">
             Create Free Account
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
