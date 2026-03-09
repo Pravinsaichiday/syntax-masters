@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Code2, Eye, EyeOff } from "lucide-react";
-import { toast } from "sonner";
+import ErrorPopup from "@/components/ErrorPopup";
 
 export default function SignupPage() {
   const [name, setName] = useState("");
@@ -14,6 +14,7 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const { signup, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -25,25 +26,26 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
+      setErrorMsg("Passwords do not match. Please re-enter.");
       return;
     }
     if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      setErrorMsg("Password must be at least 6 characters.");
       return;
     }
     setLoading(true);
     const result = await signup(name, email, password);
     setLoading(false);
     if (result.ok) {
-      toast.success("Account created! You can now log in.");
       navigate("/login");
     } else {
-      toast.error(result.error || "Signup failed");
+      setErrorMsg(result.error || "Signup failed. Please try again.");
     }
   };
 
   return (
+    <>
+    <ErrorPopup open={!!errorMsg} onClose={() => setErrorMsg("")} title="Signup Error" message={errorMsg} />
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
@@ -88,5 +90,6 @@ export default function SignupPage() {
         </p>
       </div>
     </div>
+    </>
   );
 }

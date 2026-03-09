@@ -5,13 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Code2, Eye, EyeOff } from "lucide-react";
-import { toast } from "sonner";
+import ErrorPopup from "@/components/ErrorPopup";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -27,11 +28,13 @@ export default function LoginPage() {
     if (result.ok) {
       navigate("/welcome");
     } else {
-      toast.error(result.error || "Invalid credentials");
+      setErrorMsg(result.error || "Invalid email or password. Please check your credentials and try again.");
     }
   };
 
   return (
+    <>
+    <ErrorPopup open={!!errorMsg} onClose={() => setErrorMsg("")} message={errorMsg} />
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
@@ -68,5 +71,6 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+    </>
   );
 }
