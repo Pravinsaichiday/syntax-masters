@@ -290,7 +290,7 @@ export default function ProblemPage() {
 
             {/* Constraints */}
             <div className="mt-3 rounded-lg border border-border bg-surface-2 p-4">
-              <h3 className="text-sm font-bold text-foreground mb-2">⚠️ Constraints</h3>
+              <h3 className="text-sm font-bold text-foreground mb-2">Constraints</h3>
               <ul className="space-y-1.5">
                 {problem.constraints.map((c, i) => (
                   <li key={i} className="flex items-start gap-2">
