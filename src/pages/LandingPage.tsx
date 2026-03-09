@@ -48,7 +48,7 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(38_92%_55%/0.08),transparent_60%)]" />
-        <div className="container relative mx-auto px-4 pb-20 pt-24 md:pt-32">
+        <div className="container relative mx-auto px-4 pb-16 pt-20 sm:pb-20 sm:pt-24 md:pt-32">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
