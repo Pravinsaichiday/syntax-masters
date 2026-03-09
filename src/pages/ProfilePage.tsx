@@ -331,7 +331,7 @@ export default function ProfilePage() {
           </div>
           <div className="text-center sm:text-left">
             <h1 className="text-2xl font-bold">{profileData.name}</h1>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center sm:justify-start gap-2">
               {editingUsername ? (
                 <div className="flex items-center gap-2">
                   <Input value={newUsername} onChange={(e) => setNewUsername(e.target.value)} placeholder="Choose username" className="h-8 w-48 bg-surface-2 text-sm" maxLength={20} />
