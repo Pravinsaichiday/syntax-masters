@@ -289,7 +289,7 @@ export const COMPETITIVE_CURRICULUM: CurriculumTrack = {
   id: "competitive-prep",
   title: "Competitive Programming",
   description: "Advanced topics for competitive programming contests.",
-  icon: "🏆",
+  icon: "trophy",
   topics: [
     {
       id: "cp-number-theory",
