@@ -135,7 +135,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 text-center">
           <h2 className="mb-4 text-3xl font-bold">Ready to Level Up?</h2>
           <p className="mb-8 text-muted-foreground">Join thousands of developers improving their skills every day.</p>
-          <Button size="lg" onClick={() => navigate("/signup")} className="bg-gradient-gold px-10 text-base font-semibold">
+          <Button size="default" onClick={() => navigate("/signup")} className="bg-gradient-gold px-8 text-sm font-semibold sm:text-base">
             Create Free Account
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
