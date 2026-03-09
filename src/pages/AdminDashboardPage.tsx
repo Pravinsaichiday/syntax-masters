@@ -20,7 +20,7 @@ export default function AdminDashboardPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [maintenanceMode, setMaintenanceMode] = useState(false);
-  const [pythonLocked, setPythonLocked] = useState(false);
+  const [trackLocks, setTrackLocks] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState("");
   const [usageCount, setUsageCount] = useState(0);
