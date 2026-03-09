@@ -215,7 +215,7 @@ export default function DSATopicPage() {
       if (error) throw error;
       if (data?.solution) {
         setCode(data.solution);
-        setOutput("💡 AI Solution loaded. Study it, then try to solve it yourself!");
+        setOutput("AI Solution loaded. Study it, then try to solve it yourself!");
       }
     } catch (err: any) {
       console.error(err);
@@ -444,7 +444,7 @@ export default function DSATopicPage() {
             <div className="rounded-full bg-primary/10 p-4">
               <Trophy className="h-10 w-10 text-primary" />
             </div>
-            <h2 className="text-xl font-bold">Problem Solved! 🎉</h2>
+            <h2 className="text-xl font-bold">Problem Solved!</h2>
             {earnedXp > 0 && <p className="text-muted-foreground">You earned <span className="font-bold text-primary">+{earnedXp} XP</span></p>}
             {earnedXp === 0 && <p className="text-muted-foreground">Already completed — no extra XP</p>}
             <div className="flex gap-3 mt-2">

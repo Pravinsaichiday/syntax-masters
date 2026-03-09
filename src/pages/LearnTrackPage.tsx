@@ -1,7 +1,7 @@
 import Navbar from "@/components/Navbar";
 import { motion } from "framer-motion";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { BookOpen, CheckCircle2, Circle, ArrowLeft } from "lucide-react";
+import { BookOpen, CheckCircle2, Circle, ArrowLeft, Code, MapIcon, Zap, Trophy, Briefcase, Settings, Coffee, Hexagon } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import type { CurriculumTrack, CurriculumTopic } from "@/data/curriculumTypes";
@@ -20,6 +20,17 @@ const TRACKS: Record<string, CurriculumTrack> = {
   "interview-prep": INTERVIEW_CURRICULUM,
 };
 
+const TRACK_ICONS: Record<string, React.ElementType> = {
+  code: Code,
+  map: MapIcon,
+  zap: Zap,
+  trophy: Trophy,
+  briefcase: Briefcase,
+  settings: Settings,
+  coffee: Coffee,
+  hexagon: Hexagon,
+};
+
 export default function LearnTrackPage() {
   const { trackId } = useParams();
   const { isAuthenticated } = useAuth();
@@ -35,6 +46,8 @@ export default function LearnTrackPage() {
     );
   }
 
+  const TrackIcon = TRACK_ICONS[track.icon] || BookOpen;
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -44,15 +57,17 @@ export default function LearnTrackPage() {
             <Link to="/problems" className="text-muted-foreground hover:text-foreground">
               <ArrowLeft className="h-5 w-5" />
             </Link>
-            <span className="text-3xl">{track.icon}</span>
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+              <TrackIcon className="h-6 w-6 text-primary" />
+            </div>
             <div>
-              <h1 className="text-2xl font-bold">{track.title}</h1>
+              <h1 className="text-xl sm:text-2xl font-bold">{track.title}</h1>
               <p className="text-muted-foreground text-sm">{track.description}</p>
             </div>
           </div>
         </motion.div>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {track.topics.map((topic, i) => (
             <motion.div
               key={topic.id}

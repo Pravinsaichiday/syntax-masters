@@ -201,14 +201,14 @@ export default function TrackTopicPage() {
 
               {/* Real-world Analogy */}
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-5">
-                <h3 className="text-sm font-semibold text-primary mb-2">🌍 Real-World Analogy</h3>
+                <h3 className="text-sm font-semibold text-primary mb-2">Real-World Analogy</h3>
                 <p className="text-sm text-foreground/80 leading-relaxed">{topic.realWorldAnalogy}</p>
               </div>
 
               {/* Visualization */}
               {topic.visualization && (
                 <div className="rounded-xl border border-border bg-card p-5">
-                  <h3 className="text-sm font-semibold text-foreground mb-3">📊 Visualization</h3>
+                  <h3 className="text-sm font-semibold text-foreground mb-3">Visualization</h3>
                   <pre className="font-mono text-xs text-muted-foreground whitespace-pre overflow-x-auto bg-surface-2 p-4 rounded-lg">
                     {topic.visualization}
                   </pre>
@@ -217,7 +217,7 @@ export default function TrackTopicPage() {
 
               {/* Code Examples in Multiple Languages */}
               <div className="rounded-xl border border-border bg-card p-5">
-                <h3 className="text-sm font-semibold text-foreground mb-3">💻 Code Examples</h3>
+                <h3 className="text-sm font-semibold text-foreground mb-3">Code Examples</h3>
                 <div className="flex gap-2 mb-3 flex-wrap">
                   {Object.keys(topic.codeExamples).map(lang => (
                     <button
@@ -238,7 +238,7 @@ export default function TrackTopicPage() {
 
               {/* Reference Links */}
               <div className="rounded-xl border border-border bg-card p-5">
-                <h3 className="text-sm font-semibold text-foreground mb-3">📚 Reference Links</h3>
+                <h3 className="text-sm font-semibold text-foreground mb-3">Reference Links</h3>
                 <div className="space-y-2">
                   {topic.referenceLinks.map((link, i) => (
                     <a
@@ -447,7 +447,7 @@ export default function TrackTopicPage() {
             <div className="rounded-full bg-primary/10 p-4">
               <Trophy className="h-10 w-10 text-primary" />
             </div>
-            <h2 className="text-xl font-bold">Problem Solved! 🎉</h2>
+            <h2 className="text-xl font-bold">Problem Solved!</h2>
             <p className="text-muted-foreground">Great work!</p>
             <Button variant="outline" onClick={() => setShowSuccess(false)}>Continue</Button>
           </motion.div>

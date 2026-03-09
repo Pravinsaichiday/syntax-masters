@@ -4,7 +4,7 @@ export const ALGORITHM_CURRICULUM: CurriculumTrack = {
   id: "algorithm-mastery",
   title: "Algorithm Mastery",
   description: "Master sorting, searching, greedy, divide & conquer, and dynamic programming.",
-  icon: "⚡",
+  icon: "zap",
   topics: [
     {
       id: "sorting",
@@ -289,7 +289,7 @@ export const COMPETITIVE_CURRICULUM: CurriculumTrack = {
   id: "competitive-prep",
   title: "Competitive Programming",
   description: "Advanced topics for competitive programming contests.",
-  icon: "🏆",
+  icon: "trophy",
   topics: [
     {
       id: "cp-number-theory",
@@ -371,7 +371,7 @@ export const INTERVIEW_CURRICULUM: CurriculumTrack = {
   id: "interview-prep",
   title: "Coding Interview Preparation",
   description: "Top 100 most asked questions with pattern-based approach.",
-  icon: "💼",
+  icon: "briefcase",
   topics: [
     {
       id: "interview-patterns",

@@ -4,7 +4,7 @@ export const JAVA_CURRICULUM: CurriculumTrack = {
   id: "learn-java",
   title: "Learn Java Programming",
   description: "Master Java — OOP, Collections, Multithreading, and Design Patterns.",
-  icon: "☕",
+  icon: "coffee",
   language: "Java",
   topics: [
     {

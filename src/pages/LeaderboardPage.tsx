@@ -70,7 +70,7 @@ export default function LeaderboardPage() {
 
         {/* Top 3 Podium */}
         {filtered.length >= 3 && (
-          <div className="mb-8 grid grid-cols-3 gap-4">
+          <div className="mb-8 hidden sm:grid grid-cols-3 gap-4">
             {[1, 0, 2].map((order, i) => {
               const user = filtered[order];
               if (!user) return null;
@@ -87,7 +87,7 @@ export default function LeaderboardPage() {
                     <div className="mb-1 flex h-12 w-12 items-center justify-center rounded-full border-2 border-primary bg-surface-2 text-lg font-bold text-primary mx-auto">
                       {user.name.charAt(0)}
                     </div>
-                    <Link to={`/profile/${user.username}`} className="text-sm font-semibold hover:text-primary transition-colors">{user.username}</Link>
+                    <Link to={`/profile/${user.username}`} className="text-sm font-semibold hover:text-primary transition-colors truncate block max-w-[120px] mx-auto">{user.username}</Link>
                     <div className="text-xs text-muted-foreground">{user.xp.toLocaleString()} XP</div>
                   </div>
                   <div className={`w-full rounded-t-lg bg-gradient-to-t from-primary/20 to-primary/5 border border-border border-b-0 flex items-end justify-center pb-2 ${heights[i]}`}>
@@ -101,7 +101,7 @@ export default function LeaderboardPage() {
 
         {/* Table */}
         <div className="rounded-xl border border-border bg-card overflow-hidden">
-          <div className="grid grid-cols-[auto_1fr_auto_auto_auto] gap-4 border-b border-border px-5 py-3 text-xs font-medium text-muted-foreground">
+          <div className="grid grid-cols-[auto_1fr_auto_auto_auto] gap-2 sm:gap-4 border-b border-border px-3 sm:px-5 py-3 text-xs font-medium text-muted-foreground">
             <span>Rank</span>
             <span>User</span>
             <span className="text-right">XP</span>
@@ -120,7 +120,7 @@ export default function LeaderboardPage() {
               >
                 <Link
                   to={`/profile/${u.username}`}
-                  className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-4 border-b border-border px-5 py-3.5 transition-colors last:border-0 hover:bg-surface-2"
+                  className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-2 sm:gap-4 border-b border-border px-3 sm:px-5 py-3.5 transition-colors last:border-0 hover:bg-surface-2"
                 >
                   <span className={`w-8 text-center font-bold ${u.rank <= 3 ? "text-primary" : "text-muted-foreground"}`}>
                     {u.rank}

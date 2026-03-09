@@ -261,16 +261,16 @@ export default function ProblemPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="flex h-[calc(100vh-64px)] flex-col lg:flex-row">
+      <div className="flex h-[calc(100vh-64px)] flex-col lg:flex-row overflow-hidden">
         {/* Left: Problem Description */}
-        <div className="w-full overflow-y-auto border-r border-border p-6 lg:w-[45%]">
+        <div className="w-full overflow-y-auto border-b lg:border-b-0 lg:border-r border-border p-4 sm:p-6 lg:w-[45%] max-h-[50vh] lg:max-h-none">
           <div className="mb-4 flex items-center gap-3 flex-wrap">
             <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${DIFF_COLORS[problem.difficulty] || ""}`}>{problem.difficulty}</span>
             <span className="text-xs text-muted-foreground">{problem.source}</span>
             <span className="text-xs text-primary">+{problem.xpReward} XP</span>
             {alreadySolved && <span className="rounded-md bg-success/10 px-2 py-0.5 text-xs font-bold text-success">✓ Solved</span>}
           </div>
-          <h1 className="mb-4 text-2xl font-bold">{problem.title}</h1>
+          <h1 className="mb-4 text-lg sm:text-2xl font-bold">{problem.title}</h1>
           <div className="mb-4 flex gap-2 flex-wrap">{problem.topics.map((t) => <span key={t} className="rounded bg-surface-3 px-2 py-0.5 text-xs text-muted-foreground">{t}</span>)}</div>
 
           <div className="prose prose-sm prose-invert max-w-none">
@@ -278,19 +278,19 @@ export default function ProblemPage() {
 
             {/* Input Format */}
             <div className="mt-6 rounded-lg border border-border bg-surface-2 p-4">
-              <h3 className="text-sm font-bold text-foreground mb-2">📥 Input Format</h3>
+              <h3 className="text-sm font-bold text-foreground mb-2">Input Format</h3>
               <p className="text-[13px] text-muted-foreground leading-relaxed">{problem.inputFormat}</p>
             </div>
 
             {/* Output Format */}
             <div className="mt-3 rounded-lg border border-border bg-surface-2 p-4">
-              <h3 className="text-sm font-bold text-foreground mb-2">📤 Output Format</h3>
+              <h3 className="text-sm font-bold text-foreground mb-2">Output Format</h3>
               <p className="text-[13px] text-muted-foreground leading-relaxed">{problem.outputFormat}</p>
             </div>
 
             {/* Constraints */}
             <div className="mt-3 rounded-lg border border-border bg-surface-2 p-4">
-              <h3 className="text-sm font-bold text-foreground mb-2">⚠️ Constraints</h3>
+              <h3 className="text-sm font-bold text-foreground mb-2">Constraints</h3>
               <ul className="space-y-1.5">
                 {problem.constraints.map((c, i) => (
                   <li key={i} className="flex items-start gap-2">
@@ -313,7 +313,7 @@ export default function ProblemPage() {
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-success">Output</span>
                   <pre className="mt-1 rounded bg-background p-3 font-mono text-sm text-foreground">{sc.output}</pre>
                 </div>
-                {sc.explanation && <p className="mt-2 text-xs text-muted-foreground italic">💡 {sc.explanation}</p>}
+                {sc.explanation && <p className="mt-2 text-xs text-muted-foreground italic">{sc.explanation}</p>}
               </div>
             ))}
           </div>
@@ -376,7 +376,7 @@ export default function ProblemPage() {
         </div>
 
         {/* Right: Code Editor */}
-        <div className="flex w-full flex-col lg:w-[55%]">
+        <div className="flex w-full flex-col lg:w-[55%] min-h-[50vh] lg:min-h-0">
 
           <div className="flex items-center justify-between border-b border-border px-4 py-2">
             <div className="flex items-center gap-2">
@@ -441,24 +441,24 @@ export default function ProblemPage() {
                 {running ? "Processing..." : output || "Run or submit your code to see output here."}
               </pre>
             ) : (
-              <div className="h-32 flex gap-2 p-3">
+              <div className="h-auto min-h-[120px] sm:h-32 flex flex-col sm:flex-row gap-2 p-3">
                 <div className="flex-1 flex flex-col">
                   <label className="text-[10px] font-medium text-muted-foreground mb-1">Custom Input</label>
                   <Textarea
                     value={customInput}
                     onChange={(e) => setCustomInput(e.target.value)}
                     placeholder="Enter your test input..."
-                    className="flex-1 bg-surface-2 text-xs font-mono min-h-0 resize-none"
+                    className="flex-1 bg-surface-2 text-xs font-mono min-h-[60px] sm:min-h-0 resize-none"
                   />
                 </div>
-                <div className="flex flex-col items-center justify-center">
+                <div className="flex flex-row sm:flex-col items-center justify-center">
                   <Button size="sm" variant="outline" onClick={handleRunCustom} disabled={running} className="text-xs">
                     <Play className="h-3 w-3 mr-1" />Run
                   </Button>
                 </div>
                 <div className="flex-1 flex flex-col">
                   <label className="text-[10px] font-medium text-muted-foreground mb-1">Output</label>
-                  <pre className="flex-1 overflow-y-auto rounded bg-surface-2 p-2 text-xs font-mono text-muted-foreground">
+                  <pre className="flex-1 overflow-y-auto rounded bg-surface-2 p-2 text-xs font-mono text-muted-foreground min-h-[60px] sm:min-h-0">
                     {customOutput || "Output will appear here..."}
                   </pre>
                 </div>
@@ -509,7 +509,7 @@ export default function ProblemPage() {
                 transition={{ delay: 0.3 }}
                 className="text-2xl font-black mb-3 bg-gradient-to-r from-success via-primary to-success bg-clip-text text-transparent"
               >
-                ACCEPTED! 🎉
+                ACCEPTED!
               </motion.h2>
               
               {/* XP Badge */}

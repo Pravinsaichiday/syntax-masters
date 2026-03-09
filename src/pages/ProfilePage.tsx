@@ -308,7 +308,7 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container mx-auto px-4 py-8">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex items-center gap-6">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:gap-6">
           <div className="relative group">
             <Avatar className="h-20 w-20 border-2 border-primary">
               {(isOwnProfile ? currentProfile?.avatar_url : dbProfile?.avatar_url) ? (
@@ -329,9 +329,9 @@ export default function ProfilePage() {
               </>
             )}
           </div>
-          <div>
+          <div className="text-center sm:text-left">
             <h1 className="text-2xl font-bold">{profileData.name}</h1>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center sm:justify-start gap-2">
               {editingUsername ? (
                 <div className="flex items-center gap-2">
                   <Input value={newUsername} onChange={(e) => setNewUsername(e.target.value)} placeholder="Choose username" className="h-8 w-48 bg-surface-2 text-sm" maxLength={20} />
@@ -349,7 +349,7 @@ export default function ProfilePage() {
                 </>
               )}
             </div>
-            <div className="mt-1 flex gap-3 text-sm text-muted-foreground">
+            <div className="mt-1 flex flex-wrap justify-center sm:justify-start gap-3 text-sm text-muted-foreground">
               <span>{profileData.language}</span><span>·</span><span>{profileData.level}</span><span>·</span>
               <span>Joined {new Date(profileData.joinedAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</span>
             </div>

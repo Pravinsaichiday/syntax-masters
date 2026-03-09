@@ -4,7 +4,7 @@ export const CPP_CURRICULUM: CurriculumTrack = {
   id: "learn-cpp",
   title: "Learn C++ Programming",
   description: "Master C++ — STL, OOP, Templates, and Modern C++ features.",
-  icon: "🔷",
+  icon: "hexagon",
   language: "C++",
   topics: [
     {

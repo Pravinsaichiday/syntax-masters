@@ -4,7 +4,7 @@ import { LEARNING_TRACKS } from "@/data/learningTracks";
 import { useState, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Search, BookOpen, Lock, Unlock, ArrowRight, ArrowUpDown } from "lucide-react";
+import { Search, BookOpen, Lock, Unlock, ArrowRight, ArrowUpDown, Code, MapIcon, Zap, Trophy, Briefcase, Settings, Coffee, Hexagon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -20,6 +20,17 @@ const DIFF_COLORS: Record<Difficulty, string> = {
 };
 
 const DIFF_ORDER: Record<string, number> = { "Very Easy": 0, Easy: 1, Basic: 2, Intermediate: 3, Advanced: 4 };
+
+const TRACK_ICONS: Record<string, React.ElementType> = {
+  code: Code,
+  map: MapIcon,
+  zap: Zap,
+  trophy: Trophy,
+  briefcase: Briefcase,
+  settings: Settings,
+  coffee: Coffee,
+  hexagon: Hexagon,
+};
 
 type SortKey = "none" | "difficulty-asc" | "difficulty-desc" | "acceptance-asc" | "acceptance-desc" | "xp-asc" | "xp-desc";
 
@@ -89,32 +100,37 @@ export default function ProblemsPage() {
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Problem Set</h1>
+          <h1 className="text-xl sm:text-2xl font-bold">Problem Set</h1>
           <span className="text-sm text-muted-foreground">{ALL_PROBLEMS.length} problems</span>
         </div>
 
         {/* Learning Tracks */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <h2 className="mb-3 text-sm font-semibold text-muted-foreground uppercase tracking-wider">Learning Tracks</h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {LEARNING_TRACKS.map((track) => (
-              <Link
-                key={track.id}
-                to={track.route}
-                className="group flex items-start gap-3 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:glow-gold-sm"
-              >
-                <span className="text-2xl">{track.icon}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold truncate">{track.title}</h3>
-                    {track.id === "learn-python" && (pythonLocked ? <Lock className="h-3 w-3 text-destructive flex-shrink-0" /> : <Unlock className="h-3 w-3 text-success flex-shrink-0" />)}
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {LEARNING_TRACKS.map((track) => {
+              const TrackIcon = TRACK_ICONS[track.icon] || BookOpen;
+              return (
+                <Link
+                  key={track.id}
+                  to={track.route}
+                  className="group flex items-start gap-3 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:glow-gold-sm"
+                >
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                    <TrackIcon className="h-5 w-5 text-primary" />
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">{track.description}</p>
-                  <p className="text-xs text-primary mt-1">{track.difficulty}</p>
-                </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary flex-shrink-0 mt-1" />
-              </Link>
-            ))}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-bold truncate">{track.title}</h3>
+                      {track.id === "learn-python" && (pythonLocked ? <Lock className="h-3 w-3 text-destructive flex-shrink-0" /> : <Unlock className="h-3 w-3 text-success flex-shrink-0" />)}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">{track.description}</p>
+                    <p className="text-xs text-primary mt-1">{track.difficulty}</p>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary flex-shrink-0 mt-1" />
+                </Link>
+              );
+            })}
           </div>
         </motion.div>
 
@@ -124,7 +140,7 @@ export default function ProblemsPage() {
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input placeholder="Search problems..." value={search} onChange={(e) => setSearch(e.target.value)} className="bg-surface-2 border-border pl-10" />
           </div>
-          <div className="flex gap-2 overflow-x-auto">
+          <div className="flex gap-2 overflow-x-auto pb-1">
             {DIFFICULTIES.map((d) => (
               <button
                 key={d}
@@ -163,8 +179,8 @@ export default function ProblemsPage() {
         </div>
 
         {/* Problem List */}
-        <div className="rounded-xl border border-border bg-card">
-          <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 border-b border-border px-5 py-3 text-xs font-medium text-muted-foreground">
+        <div className="rounded-xl border border-border bg-card overflow-hidden">
+          <div className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[1fr_auto_auto_auto] gap-2 sm:gap-4 border-b border-border px-3 sm:px-5 py-3 text-xs font-medium text-muted-foreground">
             <span>Title</span>
             <button onClick={() => toggleSort("difficulty")} className={`text-right flex items-center gap-1 transition-colors cursor-pointer ${isSortActive("difficulty") ? "text-primary font-semibold" : "hover:text-foreground"}`}>
               Difficulty {getSortIcon("difficulty")} <ArrowUpDown className="h-3 w-3" />
@@ -183,21 +199,21 @@ export default function ProblemsPage() {
               <div key={`${p.id}-${i}`}>
                 <Link
                   to={`/problem/${p.id}`}
-                  className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-4 border-b border-border px-5 py-4 transition-colors last:border-0 hover:bg-surface-2"
+                  className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[1fr_auto_auto_auto] items-center gap-2 sm:gap-4 border-b border-border px-3 sm:px-5 py-3 sm:py-4 transition-colors last:border-0 hover:bg-surface-2"
                 >
-                  <div>
-                    <div className="font-medium">{p.title}</div>
+                  <div className="min-w-0">
+                    <div className="font-medium text-sm sm:text-base truncate">{p.title}</div>
                     <div className="mt-1 flex gap-1 flex-wrap">
-                      {p.topics.slice(0, 3).map((t) => (
+                      {p.topics.slice(0, 2).map((t) => (
                         <span key={t} className="rounded bg-surface-3 px-1.5 py-0.5 text-[10px] text-muted-foreground">{t}</span>
                       ))}
                     </div>
                   </div>
-                  <span className={`rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap ${DIFF_COLORS[p.difficulty as Difficulty] || ""}`}>
+                  <span className={`rounded-md px-2 py-0.5 text-[10px] sm:text-xs font-medium whitespace-nowrap ${DIFF_COLORS[p.difficulty as Difficulty] || ""}`}>
                     {p.difficulty}
                   </span>
-                  <span className="text-sm text-muted-foreground hidden sm:block">{p.acceptance}%</span>
-                  <span className="text-sm text-primary font-medium">+{p.xpReward}</span>
+                  <span className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{p.acceptance}%</span>
+                  <span className="text-xs sm:text-sm text-primary font-medium">+{p.xpReward}</span>
                 </Link>
               </div>
             ))

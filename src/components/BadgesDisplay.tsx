@@ -5,7 +5,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { Award } from "lucide-react";
+import { Award, Target, Flame, Shield, Medal, Crown, Trophy, Zap, Star, Gem, Sparkles, Rocket, Landmark } from "lucide-react";
+
+const ICON_MAP: Record<string, React.ElementType> = {
+  target: Target,
+  flame: Flame,
+  shield: Shield,
+  medal: Medal,
+  crown: Crown,
+  trophy: Trophy,
+  zap: Zap,
+  star: Star,
+  gem: Gem,
+  sparkles: Sparkles,
+  rocket: Rocket,
+  landmark: Landmark,
+};
 
 export default function BadgesDisplay() {
   const { user, profile } = useAuth();
@@ -30,7 +45,7 @@ export default function BadgesDisplay() {
       if (!earnedSet.has(badge.key) && badge.condition(stats)) {
         const { error } = await supabase.from("badges").insert({ user_id: user.id, badge_key: badge.key });
         if (!error) {
-          toast.success(`🏆 Badge Unlocked: ${badge.title}!`);
+          toast.success(`Badge Unlocked: ${badge.title}!`);
           refetch();
         }
       }
@@ -44,9 +59,10 @@ export default function BadgesDisplay() {
       <h2 className="mb-3 text-lg font-semibold flex items-center gap-2">
         <Award className="h-5 w-5 text-primary" /> Badges
       </h2>
-      <div className="grid grid-cols-4 gap-3 sm:grid-cols-7">
+      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-7">
         {BADGE_DEFINITIONS.map((badge, i) => {
           const earned = earnedSet.has(badge.key);
+          const IconComponent = ICON_MAP[badge.icon] || Star;
           return (
             <motion.div
               key={badge.key}
@@ -60,7 +76,7 @@ export default function BadgesDisplay() {
               }`}
               title={`${badge.title}: ${badge.description}`}
             >
-              <span className="text-2xl mb-1">{badge.icon}</span>
+              <IconComponent className="h-6 w-6 mb-1 text-primary" />
               <span className="text-[10px] font-semibold leading-tight">{badge.title}</span>
             </motion.div>
           );
