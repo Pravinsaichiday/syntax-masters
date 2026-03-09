@@ -1,10 +1,12 @@
 import Navbar from "@/components/Navbar";
 import { motion } from "framer-motion";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { BookOpen, CheckCircle2, Circle, ArrowLeft, Code, MapIcon, Zap, Trophy, Briefcase, Settings, Coffee, Hexagon } from "lucide-react";
+import { BookOpen, CheckCircle2, Circle, ArrowLeft, Code, MapIcon, Zap, Trophy, Briefcase, Settings, Coffee, Hexagon, Lock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import type { CurriculumTrack, CurriculumTopic } from "@/data/curriculumTypes";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 import { C_CURRICULUM } from "@/data/cCurriculum";
 import { CPP_CURRICULUM } from "@/data/cppCurriculum";
