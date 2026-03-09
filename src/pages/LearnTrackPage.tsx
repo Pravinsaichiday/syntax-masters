@@ -58,6 +58,20 @@ export default function LearnTrackPage() {
     );
   }
 
+  if (isLocked) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <Lock className="h-12 w-12 text-destructive" />
+          <h2 className="text-xl font-bold">This track is currently locked</h2>
+          <p className="text-sm text-muted-foreground">Check back later or contact an administrator.</p>
+          <Link to="/problems" className="text-primary text-sm hover:underline">Back to Problems</Link>
+        </div>
+      </div>
+    );
+  }
+
   const TrackIcon = TRACK_ICONS[track.icon] || BookOpen;
 
   return (
