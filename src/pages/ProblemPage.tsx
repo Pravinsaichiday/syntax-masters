@@ -481,24 +481,81 @@ export default function ProblemPage() {
 
       {/* Success Dialog */}
       <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
-        <DialogContent className="sm:max-w-md text-center">
-          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", duration: 0.5 }}>
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
-              <Trophy className="h-8 w-8 text-success" />
-            </div>
-            <h2 className="text-2xl font-bold mb-2">Problem Solved! 🎉</h2>
-            <p className="text-muted-foreground mb-1">
-              {alreadySolved ? "You've already solved this one!" : <>You earned <span className="font-bold text-primary">+{problem?.xpReward} XP</span></>}
-            </p>
-            <p className="text-sm text-muted-foreground mb-1">All test cases passed successfully!</p>
-            <p className="text-xs text-muted-foreground mb-6">Time taken: {Math.floor(timeTakenSeconds / 60)}m {timeTakenSeconds % 60}s</p>
-            <div className="flex gap-3 justify-center">
-              <Button variant="outline" onClick={() => setShowSuccess(false)}>Stay Here</Button>
-              {nextProblem && (
-                <Button onClick={() => { setShowSuccess(false); navigate(`/problem/${nextProblem.id}`); }} className="bg-gradient-gold font-semibold">
-                  Next Problem <ArrowRight className="ml-1 h-4 w-4" />
+        <DialogContent className="sm:max-w-sm border-0 bg-gradient-to-br from-surface-1 via-surface-2 to-surface-1 p-0 overflow-hidden shadow-2xl">
+          <motion.div 
+            initial={{ scale: 0.8, opacity: 0 }} 
+            animate={{ scale: 1, opacity: 1 }} 
+            transition={{ type: "spring", duration: 0.6 }}
+            className="relative"
+          >
+            {/* Top gradient accent */}
+            <div className="h-2 w-full bg-gradient-to-r from-success via-primary to-success" />
+            
+            <div className="p-6 text-center">
+              {/* Animated trophy icon */}
+              <motion.div 
+                initial={{ y: -20, rotate: -10 }}
+                animate={{ y: 0, rotate: 0 }}
+                transition={{ type: "spring", delay: 0.2, stiffness: 200 }}
+                className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-success/20 to-primary/20 border border-success/30 shadow-lg shadow-success/20"
+              >
+                <Trophy className="h-10 w-10 text-success drop-shadow-lg" />
+              </motion.div>
+              
+              {/* Title */}
+              <motion.h2 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-2xl font-black mb-3 bg-gradient-to-r from-success via-primary to-success bg-clip-text text-transparent"
+              >
+                ACCEPTED! 🎉
+              </motion.h2>
+              
+              {/* XP Badge */}
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.4, type: "spring" }}
+                className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/30 px-4 py-2 mb-4"
+              >
+                {alreadySolved ? (
+                  <span className="text-sm font-semibold text-muted-foreground">Already solved ✓</span>
+                ) : (
+                  <span className="text-lg font-black text-primary">+{problem?.xpReward} XP</span>
+                )}
+              </motion.div>
+              
+              {/* Stats row */}
+              <div className="flex justify-center gap-4 mb-6">
+                <div className="rounded-lg bg-surface-3/50 px-4 py-2 border border-border">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Test Cases</p>
+                  <p className="text-sm font-bold text-success">All Passed</p>
+                </div>
+                <div className="rounded-lg bg-surface-3/50 px-4 py-2 border border-border">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Time</p>
+                  <p className="text-sm font-bold text-foreground">{Math.floor(timeTakenSeconds / 60)}m {timeTakenSeconds % 60}s</p>
+                </div>
+              </div>
+              
+              {/* Buttons */}
+              <div className="flex gap-3 justify-center">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowSuccess(false)}
+                  className="border-border hover:bg-surface-3"
+                >
+                  Stay Here
                 </Button>
-              )}
+                {nextProblem && (
+                  <Button 
+                    onClick={() => { setShowSuccess(false); navigate(`/problem/${nextProblem.id}`); }} 
+                    className="bg-gradient-to-r from-success to-primary hover:opacity-90 font-bold shadow-lg shadow-primary/20"
+                  >
+                    Next Problem <ArrowRight className="ml-1 h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             </div>
           </motion.div>
         </DialogContent>
