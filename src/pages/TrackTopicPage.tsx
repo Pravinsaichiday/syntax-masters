@@ -238,7 +238,7 @@ export default function TrackTopicPage() {
 
               {/* Reference Links */}
               <div className="rounded-xl border border-border bg-card p-5">
-                <h3 className="text-sm font-semibold text-foreground mb-3">📚 Reference Links</h3>
+                <h3 className="text-sm font-semibold text-foreground mb-3">Reference Links</h3>
                 <div className="space-y-2">
                   {topic.referenceLinks.map((link, i) => (
                     <a
