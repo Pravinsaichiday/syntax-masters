@@ -39,6 +39,16 @@ export default function LearnTrackPage() {
   const navigate = useNavigate();
   const track = trackId ? TRACKS[trackId] : null;
 
+  const lockKey = trackId ? `${trackId.replace(/-/g, "_")}_locked` : "";
+  const { data: isLocked } = useQuery({
+    queryKey: ["track-lock", lockKey],
+    queryFn: async () => {
+      const { data } = await supabase.from("admin_settings").select("value").eq("key", lockKey).single();
+      return data?.value === "true";
+    },
+    enabled: !!lockKey,
+  });
+
   if (!track) {
     return (
       <div className="min-h-screen bg-background">
