@@ -260,16 +260,31 @@ export default function AdminDashboardPage() {
               </div>
             </motion.div>
 
-            {/* Python Lock */}
+            {/* Learning Track Locks */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="rounded-xl border border-border bg-card p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {pythonLocked ? <Lock className="h-6 w-6 text-destructive" /> : <Unlock className="h-6 w-6 text-success" />}
-                  <div><h3 className="font-semibold">Learn Python Section</h3><p className="text-sm text-muted-foreground">{pythonLocked ? "LOCKED" : "UNLOCKED"}</p></div>
-                </div>
-                <button disabled={loading} onClick={() => updateSetting("python_locked", pythonLocked ? "false" : "true")} className={`relative h-7 w-14 rounded-full transition-colors ${pythonLocked ? "bg-destructive" : "bg-success"}`}>
-                  <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white transition-transform ${pythonLocked ? "left-7" : "left-0.5"}`} />
-                </button>
+              <div className="mb-4">
+                <h3 className="font-semibold">Learning Track Access</h3>
+                <p className="text-sm text-muted-foreground">Lock or unlock individual learning tracks</p>
+              </div>
+              <div className="space-y-3">
+                {LEARNING_TRACKS.map((track) => {
+                  const lockKey = `${track.id.replace(/-/g, "_")}_locked`;
+                  const isLocked = trackLocks[lockKey] ?? false;
+                  return (
+                    <div key={track.id} className="flex items-center justify-between rounded-lg bg-surface-2 px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        {isLocked ? <Lock className="h-4 w-4 text-destructive" /> : <Unlock className="h-4 w-4 text-success" />}
+                        <div>
+                          <h4 className="text-sm font-medium">{track.title}</h4>
+                          <p className="text-xs text-muted-foreground">{isLocked ? "LOCKED" : "UNLOCKED"}</p>
+                        </div>
+                      </div>
+                      <button disabled={loading} onClick={() => updateSetting(lockKey, isLocked ? "false" : "true")} className={`relative h-6 w-12 rounded-full transition-colors ${isLocked ? "bg-destructive" : "bg-success"}`}>
+                        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${isLocked ? "left-6" : "left-0.5"}`} />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </motion.div>
           </div>
