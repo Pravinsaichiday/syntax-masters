@@ -4,7 +4,7 @@ export const ALGORITHM_CURRICULUM: CurriculumTrack = {
   id: "algorithm-mastery",
   title: "Algorithm Mastery",
   description: "Master sorting, searching, greedy, divide & conquer, and dynamic programming.",
-  icon: "⚡",
+  icon: "zap",
   topics: [
     {
       id: "sorting",
