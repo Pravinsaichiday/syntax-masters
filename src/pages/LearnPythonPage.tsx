@@ -24,7 +24,7 @@ export default function LearnPythonPage() {
 
   useEffect(() => {
     if (settings) {
-      const locked = settings.find((s: any) => s.key === "python_locked");
+      const locked = settings.find((s: any) => s.key === "python_locked" || s.key === "learn_python_locked");
       setIsLocked(locked?.value === "true");
     }
   }, [settings]);
