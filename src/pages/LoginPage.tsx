@@ -28,7 +28,7 @@ export default function LoginPage() {
     if (result.ok) {
       navigate("/welcome");
     } else {
-      toast.error(result.error || "Invalid credentials");
+      setErrorMsg(result.error || "Invalid email or password. Please check your credentials and try again.");
     }
   };
 
