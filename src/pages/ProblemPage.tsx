@@ -376,7 +376,7 @@ export default function ProblemPage() {
         </div>
 
         {/* Right: Code Editor */}
-        <div className="flex w-full flex-col lg:w-[55%]">
+        <div className="flex w-full flex-col lg:w-[55%] min-h-[50vh] lg:min-h-0">
 
           <div className="flex items-center justify-between border-b border-border px-4 py-2">
             <div className="flex items-center gap-2">
