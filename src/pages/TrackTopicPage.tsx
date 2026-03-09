@@ -217,7 +217,7 @@ export default function TrackTopicPage() {
 
               {/* Code Examples in Multiple Languages */}
               <div className="rounded-xl border border-border bg-card p-5">
-                <h3 className="text-sm font-semibold text-foreground mb-3">💻 Code Examples</h3>
+                <h3 className="text-sm font-semibold text-foreground mb-3">Code Examples</h3>
                 <div className="flex gap-2 mb-3 flex-wrap">
                   {Object.keys(topic.codeExamples).map(lang => (
                     <button
