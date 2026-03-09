@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Shield, Lock, Unlock, Server, ServerOff, LogOut, Key, Activity, CheckCircle2, XCircle, AlertCircle, Plus, Save } from "lucide-react";
 import { motion } from "framer-motion";
 import { ALL_PROBLEMS, EXPANDED_TOPICS, type Difficulty } from "@/data/problemsDatabase";
+import { LEARNING_TRACKS } from "@/data/learningTracks";
 
 const ADMIN_EMAIL = "sensei777@gmail.com";
 const ADMIN_PASS = "911911";
