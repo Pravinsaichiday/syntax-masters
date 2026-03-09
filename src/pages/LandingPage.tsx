@@ -59,12 +59,12 @@ export default function LandingPage() {
               <Zap className="h-3.5 w-3.5 text-primary" />
               AI-powered competitive programming
             </div>
-            <h1 className="mb-6 text-4xl font-bold leading-tight tracking-tight md:text-6xl lg:text-7xl">
+            <h1 className="mb-4 text-3xl font-bold leading-tight tracking-tight sm:mb-6 sm:text-4xl md:text-6xl lg:text-7xl">
               Master Algorithms.
               <br />
               <span className="text-gradient-gold">Master Your Syntax.</span>
             </h1>
-            <p className="mx-auto mb-10 max-w-xl text-lg text-muted-foreground">
+            <p className="mx-auto mb-8 max-w-xl text-base text-muted-foreground sm:mb-10 sm:text-lg">
               The most advanced competitive programming platform with AI mentoring, real-time contests, and personalized learning paths.
             </p>
             <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
