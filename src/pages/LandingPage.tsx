@@ -96,8 +96,8 @@ export default function LandingPage() {
           >
             {stats.map((s) => (
               <div key={s.label} className="text-center">
-                <div className="text-3xl font-bold text-gradient-gold">{s.value}</div>
-                <div className="mt-1 text-sm text-muted-foreground">{s.label}</div>
+                <div className="text-2xl font-bold text-gradient-gold sm:text-3xl">{s.value}</div>
+                <div className="mt-1 text-xs text-muted-foreground sm:text-sm">{s.label}</div>
               </div>
             ))}
           </motion.div>
