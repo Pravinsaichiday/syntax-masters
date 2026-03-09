@@ -37,10 +37,9 @@ export default function SignupPage() {
     const result = await signup(name, email, password);
     setLoading(false);
     if (result.ok) {
-      toast.success("Account created! You can now log in.");
       navigate("/login");
     } else {
-      toast.error(result.error || "Signup failed");
+      setErrorMsg(result.error || "Signup failed. Please try again.");
     }
   };
 
