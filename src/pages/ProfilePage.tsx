@@ -308,7 +308,7 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container mx-auto px-4 py-8">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex items-center gap-6">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:gap-6">
           <div className="relative group">
             <Avatar className="h-20 w-20 border-2 border-primary">
               {(isOwnProfile ? currentProfile?.avatar_url : dbProfile?.avatar_url) ? (
