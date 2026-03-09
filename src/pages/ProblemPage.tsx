@@ -509,7 +509,7 @@ export default function ProblemPage() {
                 transition={{ delay: 0.3 }}
                 className="text-2xl font-black mb-3 bg-gradient-to-r from-success via-primary to-success bg-clip-text text-transparent"
               >
-                ACCEPTED! 🎉
+                ACCEPTED!
               </motion.h2>
               
               {/* XP Badge */}

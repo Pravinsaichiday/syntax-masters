@@ -447,7 +447,7 @@ export default function TrackTopicPage() {
             <div className="rounded-full bg-primary/10 p-4">
               <Trophy className="h-10 w-10 text-primary" />
             </div>
-            <h2 className="text-xl font-bold">Problem Solved! 🎉</h2>
+            <h2 className="text-xl font-bold">Problem Solved!</h2>
             <p className="text-muted-foreground">Great work!</p>
             <Button variant="outline" onClick={() => setShowSuccess(false)}>Continue</Button>
           </motion.div>

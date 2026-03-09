@@ -82,7 +82,7 @@ export default function AIChatbot() {
       });
 
       if (!resp.ok || !resp.body) {
-        if (resp.status === 429) { updateAssistant("⚠️ Rate limit reached. Please wait a moment."); setLoading(false); return; }
+        if (resp.status === 429) { updateAssistant("Rate limit reached. Please wait a moment."); setLoading(false); return; }
         throw new Error("Failed to connect");
       }
 
