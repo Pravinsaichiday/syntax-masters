@@ -313,7 +313,7 @@ export default function ProblemPage() {
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-success">Output</span>
                   <pre className="mt-1 rounded bg-background p-3 font-mono text-sm text-foreground">{sc.output}</pre>
                 </div>
-                {sc.explanation && <p className="mt-2 text-xs text-muted-foreground italic">💡 {sc.explanation}</p>}
+                {sc.explanation && <p className="mt-2 text-xs text-muted-foreground italic">{sc.explanation}</p>}
               </div>
             ))}
           </div>
