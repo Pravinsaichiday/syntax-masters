@@ -47,11 +47,15 @@ export default function AdminDashboardPage() {
   const fetchSettings = async () => {
     const { data } = await supabase.from("admin_settings").select("*");
     if (data) {
+      const locks: Record<string, boolean> = {};
       data.forEach((s: any) => {
         if (s.key === "maintenance_mode") setMaintenanceMode(s.value === "true");
-        if (s.key === "python_locked") setPythonLocked(s.value === "true");
         if (s.key === "maintenance_message") setMaintenanceMessage(s.value);
+        if (s.key.endsWith("_locked")) {
+          locks[s.key] = s.value === "true";
+        }
       });
+      setTrackLocks(locks);
     }
   };
 
